@@ -19,7 +19,15 @@
 
 # Go workspace file
 go.work
-go.work.sum
 
-# env file
+deploy/.env
+*.log
+
+*.idea/
+
+docs/
+
+go.mod
+go.sum
+
 .env
