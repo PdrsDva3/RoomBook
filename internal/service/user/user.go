@@ -1,14 +1,14 @@
 package user
 
 import (
-	"backend_roombook/internal/models"
-	"backend_roombook/internal/repository"
-	"backend_roombook/internal/service"
-	"backend_roombook/pkg/cerr"
-	"backend_roombook/pkg/log"
 	"context"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"roombook_backend/internal/models"
+	"roombook_backend/internal/repository"
+	"roombook_backend/internal/service"
+	"roombook_backend/pkg/cerr"
+	"roombook_backend/pkg/log"
 )
 
 type ServUser struct {
