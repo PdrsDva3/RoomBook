@@ -16,9 +16,9 @@ func InitHotelRepository(db *sqlx.DB) repository.HotelRepo {
 	return Repo{db: db}
 }
 
-func (repo Repo) Create(ctx context.Context, hotel models.HotelBase) (int, error) {
+func (r Repo) Create(ctx context.Context, hotel models.HotelBase) (int, error) {
 	var id int
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
@@ -51,15 +51,15 @@ func (repo Repo) Create(ctx context.Context, hotel models.HotelBase) (int, error
 	return id, nil
 }
 
-func (repo Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
+func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	var hotel models.Hotel
-	row := repo.db.QueryRowContext(ctx, `SELECT name, stars, address, email, phone, links from hotel WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT name, stars, address, email, phone, links from hotel WHERE id = $1;`, id)
 	err := row.Scan(&hotel.Name, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &hotel.Links)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()
 	}
 	hotel.ID = id
-	rows, err := repo.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, photo from photos WHERE id = $1 ORDER BY list_id;`, id)
+	rows, err := r.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, photo from photos WHERE id = $1 ORDER BY list_id;`, id)
 	if err != nil {
 		return nil, cerr.Err(cerr.Rows, err).Error()
 	}
@@ -74,8 +74,8 @@ func (repo Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	return &hotel, nil
 }
 
-func (repo Repo) Delete(ctx context.Context, id int) error {
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+func (r Repo) Delete(ctx context.Context, id int) error {
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}

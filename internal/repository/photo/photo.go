@@ -16,13 +16,13 @@ func InitPhotoRepository(db *sqlx.DB) repository.PhotoRepo {
 	return Repo{db: db}
 }
 
-func (repo Repo) Add(ctx context.Context, photos []models.PhotoAdd) error {
+func (r Repo) Add(ctx context.Context, photos []models.PhotoAdd) error {
 	var id int
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}
-	row, err := repo.db.QueryContext(ctx, "SELECT MAX(list_id) FROM photos WHERE hotel_id = $1", photos[0].HotelID)
+	row, err := r.db.QueryContext(ctx, "SELECT MAX(list_id) FROM photos WHERE hotel_id = $1", photos[0].HotelID)
 	if row == nil {
 		id = 0
 	} else {
@@ -46,9 +46,9 @@ func (repo Repo) Add(ctx context.Context, photos []models.PhotoAdd) error {
 	return nil
 }
 
-func (repo Repo) Get(ctx context.Context, id int) (*[]models.Photo, error) {
+func (r Repo) Get(ctx context.Context, hotelID int) (*[]models.Photo, error) {
 	var photos []models.Photo
-	rows, err := repo.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, photo from photos WHERE id = $1 ORDER BY list_id;`, id)
+	rows, err := r.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, photo from photos WHERE hotel_id = $1 ORDER BY list_id;`, hotelID)
 	if err != nil {
 		return nil, cerr.Err(cerr.Rows, err).Error()
 	}
@@ -63,8 +63,8 @@ func (repo Repo) Get(ctx context.Context, id int) (*[]models.Photo, error) {
 	return &photos, nil
 }
 
-func (repo Repo) Delete(ctx context.Context, ids []int) error {
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+func (r Repo) Delete(ctx context.Context, ids []int) error {
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}

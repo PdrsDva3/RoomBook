@@ -16,9 +16,9 @@ func InitAdminRepository(db *sqlx.DB) repository.AdminRepo {
 	return Repo{db: db}
 }
 
-func (repo Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error) {
+func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error) {
 	var id int
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
@@ -41,9 +41,9 @@ func (repo Repo) Create(ctx context.Context, admin models.AdminCreate) (int, err
 	return id, nil
 }
 
-func (repo Repo) Get(ctx context.Context, id int) (*models.Admin, error) {
+func (r Repo) Get(ctx context.Context, id int) (*models.Admin, error) {
 	var admin models.Admin
-	row := repo.db.QueryRowContext(ctx, `SELECT name, email, phone, photo from admin WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT name, email, phone, photo from admin WHERE id = $1;`, id)
 	err := row.Scan(&admin.Name, &admin.Email, &admin.Phone, &admin.Photo)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()
@@ -52,10 +52,10 @@ func (repo Repo) Get(ctx context.Context, id int) (*models.Admin, error) {
 	return &admin, nil
 }
 
-func (repo Repo) GetPWDbyEmail(ctx context.Context, admin string) (int, string, error) {
+func (r Repo) GetPWDbyEmail(ctx context.Context, admin string) (int, string, error) {
 	var pwd string
 	var id int
-	rows := repo.db.QueryRowContext(ctx, `SELECT id, hashed_password from admin WHERE email = $1;`, admin)
+	rows := r.db.QueryRowContext(ctx, `SELECT id, hashed_password from admin WHERE email = $1;`, admin)
 	err := rows.Scan(&id, &pwd)
 	if err != nil {
 		return 0, "", cerr.Err(cerr.Scan, err).Error()
@@ -63,12 +63,12 @@ func (repo Repo) GetPWDbyEmail(ctx context.Context, admin string) (int, string, 
 	return id, pwd, nil
 }
 
-func (repo Repo) ChangePWD(ctx context.Context, admin models.AdminChangePWD) (int, error) {
-	transaction, err := repo.db.BeginTx(ctx, nil)
+func (r Repo) ChangePWD(ctx context.Context, admin models.AdminChangePWD) (int, error) {
+	transaction, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	result, err := transaction.ExecContext(ctx, `UPDATE admin SET hashed_password=$2 WHERE id=$1;`, admin.ID, admin.PWD)
+	result, err := transaction.ExecContext(ctx, `UPDATE admin SET hashed_password=$2 WHERE id=$1;`, admin.ID, admin.NewPWD)
 	if err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
@@ -99,8 +99,8 @@ func (repo Repo) ChangePWD(ctx context.Context, admin models.AdminChangePWD) (in
 	return admin.ID, nil
 }
 
-func (repo Repo) Delete(ctx context.Context, id int) error {
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+func (r Repo) Delete(ctx context.Context, id int) error {
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}

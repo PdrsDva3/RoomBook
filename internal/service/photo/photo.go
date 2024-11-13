@@ -1,0 +1,49 @@
+package photo
+
+import (
+	"backend_roombook/internal/models"
+	"backend_roombook/internal/repository"
+	"backend_roombook/internal/service"
+	"backend_roombook/pkg/log"
+	"context"
+	"fmt"
+)
+
+type Serv struct {
+	Repo repository.PhotoRepo
+	log  *log.Logs
+}
+
+func InitPhotoService(photoRepo repository.PhotoRepo, log *log.Logs) service.PhotoServ {
+	return Serv{Repo: photoRepo, log: log}
+}
+
+func (s Serv) Add(ctx context.Context, photos []models.PhotoAdd) error {
+	err := s.Repo.Add(ctx, photos)
+	if err != nil {
+		s.log.Error(err.Error())
+		return err
+	}
+	s.log.Info(fmt.Sprintf("Add photo from %d", photos[0].HotelID))
+	return nil
+}
+
+func (s Serv) Get(ctx context.Context, hotelID int) (*[]models.Photo, error) {
+	photos, err := s.Repo.Get(ctx, hotelID)
+	if err != nil {
+		s.log.Error(err.Error())
+		return nil, err
+	}
+	s.log.Info(fmt.Sprintf("Get photo from %d", hotelID))
+	return photos, nil
+}
+
+func (s Serv) Delete(ctx context.Context, id []int) error {
+	err := s.Repo.Delete(ctx, id)
+	if err != nil {
+		s.log.Error(err.Error())
+		return err
+	}
+	s.log.Info(fmt.Sprintf("Delete photos count %d", len(id)))
+	return nil
+}

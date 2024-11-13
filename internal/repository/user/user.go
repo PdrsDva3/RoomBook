@@ -16,9 +16,9 @@ func InitUserRepository(db *sqlx.DB) repository.UserRepo {
 	return RepoUser{db: db}
 }
 
-func (repo RepoUser) Create(ctx context.Context, user models.UserCreate) (int, error) {
+func (r RepoUser) Create(ctx context.Context, user models.UserCreate) (int, error) {
 	var id int
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
@@ -41,9 +41,9 @@ func (repo RepoUser) Create(ctx context.Context, user models.UserCreate) (int, e
 	return id, nil
 }
 
-func (repo RepoUser) Get(ctx context.Context, id int) (*models.User, error) {
+func (r RepoUser) Get(ctx context.Context, id int) (*models.User, error) {
 	var user models.User
-	row := repo.db.QueryRowContext(ctx, `SELECT name, sur_name, email from users WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT name, sur_name, email from users WHERE id = $1;`, id)
 	err := row.Scan(&user.Name, &user.SurName, &user.Email)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()
@@ -52,10 +52,10 @@ func (repo RepoUser) Get(ctx context.Context, id int) (*models.User, error) {
 	return &user, nil
 }
 
-func (repo RepoUser) GetPWDbyEmail(ctx context.Context, user string) (int, string, error) {
+func (r RepoUser) GetPWDbyEmail(ctx context.Context, user string) (int, string, error) {
 	var pwd string
 	var id int
-	rows := repo.db.QueryRowContext(ctx, `SELECT id,  hashed_password from users WHERE email = $1;`, user)
+	rows := r.db.QueryRowContext(ctx, `SELECT id,  hashed_password from users WHERE email = $1;`, user)
 	err := rows.Scan(&id, &pwd)
 	if err != nil {
 		return 0, "", cerr.Err(cerr.Scan, err).Error()
@@ -63,8 +63,8 @@ func (repo RepoUser) GetPWDbyEmail(ctx context.Context, user string) (int, strin
 	return id, pwd, nil
 }
 
-func (repo RepoUser) ChangePWD(ctx context.Context, user models.UserChangePWD) (int, error) {
-	transaction, err := repo.db.BeginTx(ctx, nil)
+func (r RepoUser) ChangePWD(ctx context.Context, user models.UserChangePWD) (int, error) {
+	transaction, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
@@ -99,8 +99,8 @@ func (repo RepoUser) ChangePWD(ctx context.Context, user models.UserChangePWD) (
 	return user.ID, nil
 }
 
-func (repo RepoUser) Delete(ctx context.Context, id int) error {
-	transaction, err := repo.db.BeginTxx(ctx, nil)
+func (r RepoUser) Delete(ctx context.Context, id int) error {
+	transaction, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}

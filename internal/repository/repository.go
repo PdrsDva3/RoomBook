@@ -27,6 +27,6 @@ type HotelRepo interface {
 
 type PhotoRepo interface {
 	Add(ctx context.Context, photos []models.PhotoAdd) error
-	Get(ctx context.Context, id int) (*[]models.Photo, error)
+	Get(ctx context.Context, hotelID int) (*[]models.Photo, error)
 	Delete(ctx context.Context, id []int) error
 }
