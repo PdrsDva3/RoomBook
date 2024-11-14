@@ -1,11 +1,11 @@
 package photo
 
 import (
-	"backend_roombook/internal/models"
-	"backend_roombook/internal/repository"
-	"backend_roombook/pkg/cerr"
 	"context"
 	"github.com/jmoiron/sqlx"
+	"roombook_backend/internal/models"
+	"roombook_backend/internal/repository"
+	"roombook_backend/pkg/cerr"
 )
 
 type Repo struct {

@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"backend_roombook/internal/models"
-	"backend_roombook/internal/service"
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"roombook_backend/internal/models"
+	"roombook_backend/internal/service"
 	"strconv"
 	"time"
 )
@@ -81,7 +81,7 @@ func (h PhotoHandler) Get(g *gin.Context) {
 // @Success 200 {object} int "Successfully deleted"
 // @Failure 400 {object} map[string]string "Invalid id"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /admin/delete [delete]
+// @Router /photo/delete [delete]
 func (h PhotoHandler) Delete(g *gin.Context) {
 	var photo models.PhotoDelete
 	if err := g.ShouldBindJSON(&photo); err != nil {

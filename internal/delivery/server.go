@@ -1,13 +1,13 @@
 package delivery
 
 import (
-	"backend_roombook/docs"
-	"backend_roombook/internal/delivery/middleware"
-	"backend_roombook/internal/delivery/routers"
-	"backend_roombook/pkg/log"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"roombook_backend/docs"
+	"roombook_backend/internal/delivery/middleware"
+	"roombook_backend/internal/delivery/routers"
+	"roombook_backend/pkg/log"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

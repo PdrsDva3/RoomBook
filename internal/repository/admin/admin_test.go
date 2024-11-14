@@ -1,13 +1,13 @@
 package admin
 
 import (
-	"backend_roombook/internal/models"
-	"backend_roombook/pkg/cerr"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
 	"golang.org/x/net/context"
+	"roombook_backend/internal/models"
+	"roombook_backend/pkg/cerr"
 	"testing"
 )
 
@@ -35,7 +35,7 @@ func TestRepo_Create(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		// Мокаем успешный запрос
 		mock.ExpectBegin()
-		mock.ExpectQuery(`INSERT INTO admin (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
+		mock.ExpectQuery(`INSERT INTO admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
 			WithArgs(adminCreate.Name, adminCreate.Email, adminCreate.Phone, adminCreate.PWD, adminCreate.Photo).
 			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 		mock.ExpectCommit()
@@ -70,7 +70,7 @@ func TestRepo_Create(t *testing.T) {
 	t.Run("query execution error", func(t *testing.T) {
 		// Мокаем успешное начало транзакции
 		mock.ExpectBegin()
-		mock.ExpectQuery(`INSERT INTO admin (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
+		mock.ExpectQuery(`INSERT INTO admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
 			WithArgs(adminCreate.Name, adminCreate.Email, adminCreate.Phone, adminCreate.PWD, adminCreate.Photo).
 			WillReturnError(err) // Ошибка выполнения запроса
 
@@ -89,7 +89,7 @@ func TestRepo_Create(t *testing.T) {
 	t.Run("transaction rollback error", func(t *testing.T) {
 		// Мокаем ошибку при откате транзакции
 		mock.ExpectBegin()
-		mock.ExpectQuery(`INSERT INTO admin (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
+		mock.ExpectQuery(`INSERT INTO admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
 			WithArgs(adminCreate.Name, adminCreate.Email, adminCreate.Phone, adminCreate.PWD, adminCreate.Photo).
 			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(0)) // Вернем пустой id
 		mock.ExpectRollback().WillReturnError(err)

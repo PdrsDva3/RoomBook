@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"backend_roombook/pkg/log"
+	"roombook_backend/pkg/log"
 )
 
 type Middleware struct {

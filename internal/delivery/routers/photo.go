@@ -1,12 +1,12 @@
 package routers
 
 import (
-	"backend_roombook/internal/delivery/handlers"
-	"backend_roombook/internal/repository/photo"
-	photoserv "backend_roombook/internal/service/photo"
-	"backend_roombook/pkg/log"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"roombook_backend/internal/delivery/handlers"
+	"roombook_backend/internal/repository/photo"
+	photoserv "roombook_backend/internal/service/photo"
+	"roombook_backend/pkg/log"
 )
 
 func RegisterPhotoRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {

@@ -1,11 +1,12 @@
 package hotel
 
 import (
-	"backend_roombook/internal/models"
-	"backend_roombook/internal/repository"
-	"backend_roombook/pkg/cerr"
 	"context"
+	"encoding/json"
 	"github.com/jmoiron/sqlx"
+	"roombook_backend/internal/models"
+	"roombook_backend/internal/repository"
+	"roombook_backend/pkg/cerr"
 )
 
 type Repo struct {
@@ -22,8 +23,12 @@ func (r Repo) Create(ctx context.Context, hotel models.HotelBase) (int, error) {
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	row := transaction.QueryRowContext(ctx, `INSERT INTO hotel (name, stars, address, email, phone, links) VALUES ($1, $2, $3, $4, $5, $6) returning id;`,
-		hotel.Name, hotel.Stars, hotel.Address, hotel.Email, hotel.Phone, hotel.Links)
+	linksJson, err := json.Marshal(hotel.Links)
+	if err != nil {
+		return 0, cerr.Err(cerr.JSON, err).Error()
+	}
+	row := transaction.QueryRowContext(ctx, `INSERT INTO hotels (name, stars, address, email, phone, links) VALUES ($1, $2, $3, $4, $5, $6) returning id;`,
+		hotel.Name, hotel.Stars, hotel.Address, hotel.Email, hotel.Phone, linksJson)
 
 	err = row.Scan(&id)
 	if err != nil {
@@ -53,10 +58,14 @@ func (r Repo) Create(ctx context.Context, hotel models.HotelBase) (int, error) {
 
 func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	var hotel models.Hotel
-	row := r.db.QueryRowContext(ctx, `SELECT name, stars, address, email, phone, links from hotel WHERE id = $1;`, id)
-	err := row.Scan(&hotel.Name, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &hotel.Links)
+	var linksJSON []byte
+	row := r.db.QueryRowContext(ctx, `SELECT name, stars, address, email, phone, links from hotels WHERE id = $1;`, id)
+	err := row.Scan(&hotel.Name, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &linksJSON)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()
+	}
+	if err = json.Unmarshal(linksJSON, &hotel.Links); err != nil {
+		return nil, cerr.Err(cerr.JSON, err).Error()
 	}
 	hotel.ID = id
 	rows, err := r.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, photo from photos WHERE id = $1 ORDER BY list_id;`, id)
@@ -79,7 +88,7 @@ func (r Repo) Delete(ctx context.Context, id int) error {
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}
-	result, err := transaction.ExecContext(ctx, `DELETE FROM hotel WHERE id=$1;`, id)
+	result, err := transaction.ExecContext(ctx, `DELETE FROM hotels WHERE id=$1;`, id)
 	if err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()

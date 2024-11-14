@@ -1,12 +1,12 @@
 package routers
 
 import (
-	"backend_roombook/internal/delivery/handlers"
-	"backend_roombook/internal/repository/hotel"
-	hotelserv "backend_roombook/internal/service/hotel"
-	"backend_roombook/pkg/log"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"roombook_backend/internal/delivery/handlers"
+	"roombook_backend/internal/repository/hotel"
+	hotelserv "roombook_backend/internal/service/hotel"
+	"roombook_backend/pkg/log"
 )
 
 func RegisterHotelRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {

@@ -1,11 +1,11 @@
 package admin
 
 import (
-	"backend_roombook/internal/models"
-	"backend_roombook/internal/repository"
-	"backend_roombook/pkg/cerr"
 	"context"
 	"github.com/jmoiron/sqlx"
+	"roombook_backend/internal/models"
+	"roombook_backend/internal/repository"
+	"roombook_backend/pkg/cerr"
 )
 
 type Repo struct {
@@ -22,7 +22,7 @@ func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	row := transaction.QueryRowContext(ctx, `INSERT INTO admin (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`,
+	row := transaction.QueryRowContext(ctx, `INSERT INTO admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`,
 		admin.Name, admin.Email, admin.Phone, admin.PWD, admin.Photo)
 
 	err = row.Scan(&id)
@@ -43,7 +43,7 @@ func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error)
 
 func (r Repo) Get(ctx context.Context, id int) (*models.Admin, error) {
 	var admin models.Admin
-	row := r.db.QueryRowContext(ctx, `SELECT name, email, phone, photo from admin WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT name, email, phone, photo from admins WHERE id = $1;`, id)
 	err := row.Scan(&admin.Name, &admin.Email, &admin.Phone, &admin.Photo)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()
@@ -55,7 +55,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Admin, error) {
 func (r Repo) GetPWDbyEmail(ctx context.Context, admin string) (int, string, error) {
 	var pwd string
 	var id int
-	rows := r.db.QueryRowContext(ctx, `SELECT id, hashed_password from admin WHERE email = $1;`, admin)
+	rows := r.db.QueryRowContext(ctx, `SELECT id, hashed_password from admins WHERE email = $1;`, admin)
 	err := rows.Scan(&id, &pwd)
 	if err != nil {
 		return 0, "", cerr.Err(cerr.Scan, err).Error()
@@ -68,7 +68,7 @@ func (r Repo) ChangePWD(ctx context.Context, admin models.AdminChangePWD) (int, 
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	result, err := transaction.ExecContext(ctx, `UPDATE admin SET hashed_password=$2 WHERE id=$1;`, admin.ID, admin.NewPWD)
+	result, err := transaction.ExecContext(ctx, `UPDATE admins SET hashed_password=$2 WHERE id=$1;`, admin.ID, admin.NewPWD)
 	if err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
@@ -104,7 +104,7 @@ func (r Repo) Delete(ctx context.Context, id int) error {
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}
-	result, err := transaction.ExecContext(ctx, `DELETE FROM admin WHERE id=$1;`, id)
+	result, err := transaction.ExecContext(ctx, `DELETE FROM admins WHERE id=$1;`, id)
 	if err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()

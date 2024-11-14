@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"backend_roombook/internal/models"
 	"context"
+	"roombook_backend/internal/models"
 )
 
 type UserRepo interface {

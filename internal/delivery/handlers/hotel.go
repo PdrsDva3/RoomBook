@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"backend_roombook/internal/models"
-	"backend_roombook/internal/service"
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"roombook_backend/internal/models"
+	"roombook_backend/internal/service"
 	"strconv"
 	"time"
 )
@@ -30,7 +30,7 @@ func InitHotelHandlers(service service.HotelServ) HotelHandlers {
 func (h HotelHandlers) Create(g *gin.Context) {
 	var newHotel models.HotelBase
 	if err := g.ShouldBindJSON(&newHotel); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
