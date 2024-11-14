@@ -22,13 +22,13 @@ func InitHotelHandlers(service service.HotelServ) HotelHandlers {
 // @Tags hotel
 // @Accept  json
 // @Produce  json
-// @Param data body models.HotelBase true "hotel create"
+// @Param data body models.HotelCreate true "hotel create"
 // @Success 200 {object} int "Successfully created"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /hotel/create [post]
 func (h HotelHandlers) Create(g *gin.Context) {
-	var newHotel models.HotelBase
+	var newHotel models.HotelCreate
 	if err := g.ShouldBindJSON(&newHotel); err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

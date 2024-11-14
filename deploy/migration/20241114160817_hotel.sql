@@ -9,8 +9,7 @@ create TABLE IF NOT EXISTS hotels
     address VARCHAR,
     email   VARCHAR,
     phone   VARCHAR,
-    links   JSONB,
-    photo   JSONB
+    links   JSONB
 );
 
 

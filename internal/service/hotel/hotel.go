@@ -18,7 +18,7 @@ func InitHotelService(hotelRepo repository.HotelRepo, log *log.Logs) service.Hot
 	return Serv{Repo: hotelRepo, log: log}
 }
 
-func (s Serv) Create(ctx context.Context, hotel models.HotelBase) (int, error) {
+func (s Serv) Create(ctx context.Context, hotel models.HotelCreate) (int, error) {
 	id, err := s.Repo.Create(ctx, hotel)
 	if err != nil {
 		s.log.Error(err.Error())

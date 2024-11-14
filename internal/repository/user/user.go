@@ -32,7 +32,7 @@ func (r RepoUser) Create(ctx context.Context, user models.UserCreate) (int, erro
 		}
 		return 0, cerr.Err(cerr.Scan, err).Error()
 	}
-	if err := transaction.Commit(); err != nil {
+	if err = transaction.Commit(); err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
 		}

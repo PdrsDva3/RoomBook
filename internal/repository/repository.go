@@ -20,7 +20,7 @@ type AdminRepo interface {
 	Delete(ctx context.Context, id int) error
 }
 type HotelRepo interface {
-	Create(ctx context.Context, hotel models.HotelBase) (int, error)
+	Create(ctx context.Context, hotel models.HotelCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.Hotel, error)
 	Delete(ctx context.Context, id int) error
 }
