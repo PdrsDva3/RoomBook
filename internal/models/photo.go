@@ -1,9 +1,18 @@
 package models
 
+type PhotoAddWithoutIDHotel struct {
+	Name  string `json:"name"`
+	Photo string `json:"photo"`
+}
+
+type PhotoAddWithIDHotel struct {
+	HotelID int `json:"hotel_id"`
+	Photos  []PhotoAddWithoutIDHotel
+}
+
 type PhotoAdd struct {
-	HotelID int    `json:"hotel_id"`
-	Name    string `json:"name"`
-	Photo   string `json:"photo"`
+	HotelID int `json:"hotel_id"`
+	PhotoAddWithoutIDHotel
 }
 
 type PhotoBase struct {
@@ -14,4 +23,8 @@ type PhotoBase struct {
 type Photo struct {
 	ID int `json:"id"`
 	PhotoBase
+}
+
+type PhotoDelete struct {
+	ID []int `json:"id"`
 }

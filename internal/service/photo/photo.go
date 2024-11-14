@@ -18,13 +18,21 @@ func InitPhotoService(photoRepo repository.PhotoRepo, log *log.Logs) service.Pho
 	return Serv{Repo: photoRepo, log: log}
 }
 
-func (s Serv) Add(ctx context.Context, photos []models.PhotoAdd) error {
-	err := s.Repo.Add(ctx, photos)
+func (s Serv) Add(ctx context.Context, photos models.PhotoAddWithIDHotel) error {
+	idHotel := photos.HotelID
+	newPhotos := make([]models.PhotoAdd, len(photos.Photos))
+	for i, photo := range photos.Photos {
+		newPhotos[i] = models.PhotoAdd{
+			HotelID:                idHotel,
+			PhotoAddWithoutIDHotel: photo,
+		}
+	}
+	err := s.Repo.Add(ctx, newPhotos)
 	if err != nil {
 		s.log.Error(err.Error())
 		return err
 	}
-	s.log.Info(fmt.Sprintf("Add photo from %d", photos[0].HotelID))
+	s.log.Info(fmt.Sprintf("Add photo from %d", idHotel))
 	return nil
 }
 

@@ -28,7 +28,7 @@ type HotelServ interface {
 }
 
 type PhotoServ interface {
-	Add(ctx context.Context, photos []models.PhotoAdd) error
+	Add(ctx context.Context, photos models.PhotoAddWithIDHotel) error
 	Get(ctx context.Context, hotelID int) (*[]models.Photo, error)
 	Delete(ctx context.Context, id []int) error
 }
