@@ -43,6 +43,7 @@ const (
 	DiffPWD      ErrorType = "pwd not equal"
 	Hash         ErrorType = "error in hashing time"
 	NotFound     ErrorType = "this row not found"
+	JSON         ErrorType = "json error"
 )
 
 // CustomError структура для кастомной ошибки

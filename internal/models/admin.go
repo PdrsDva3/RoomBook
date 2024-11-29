@@ -23,6 +23,6 @@ type AdminLogin struct {
 }
 
 type AdminChangePWD struct {
-	ID  int    `json:"id"`
-	PWD string `json:"password"`
+	ID     int    `json:"id"`
+	NewPWD string `json:"password"`
 }

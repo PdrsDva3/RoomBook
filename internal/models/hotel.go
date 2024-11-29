@@ -1,5 +1,14 @@
 package models
 
+type HotelCreate struct {
+	Name    string   `json:"name"`
+	Stars   int      `json:"stars"`
+	Address string   `json:"address"`
+	Email   string   `json:"email"`
+	Phone   string   `json:"phone"`
+	Links   []string `json:"links"`
+}
+
 type HotelBase struct {
 	Name    string   `json:"name"`
 	Stars   int      `json:"stars"`
