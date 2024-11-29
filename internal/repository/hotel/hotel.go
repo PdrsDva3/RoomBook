@@ -58,7 +58,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 		return nil, cerr.Err(cerr.JSON, err).Error()
 	}
 	hotel.ID = id
-	rows, err := r.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, photo from photos WHERE hotel_id = $1 ORDER BY list_id;`, id)
+	rows, err := r.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, hotel_photo from photo_hotels WHERE hotel_id = $1 ORDER BY list_id;`, id)
 	if err != nil {
 		return nil, cerr.Err(cerr.Rows, err).Error()
 	}
@@ -72,7 +72,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	}
 
 	if len(hotel.Photo) == 0 {
-		row = r.db.QueryRowContext(ctx, `SELECT id, list_id, hotel_id, name, photo from photos WHERE id = $1 ORDER BY list_id;`, 0)
+		row = r.db.QueryRowContext(ctx, `SELECT id, list_id, hotel_id, name, hotel_photo from photo_hotels WHERE id = $1 ORDER BY list_id;`, 0)
 		var photo models.Photo
 		err = row.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
 		if err != nil {
@@ -108,7 +108,7 @@ func (r Repo) Delete(ctx context.Context, id int) error {
 		}
 		return cerr.Err(cerr.NoOneRow, err).Error()
 	}
-	result, err = transaction.ExecContext(ctx, `DELETE FROM photos WHERE hotel_id=$1;`, id)
+	result, err = transaction.ExecContext(ctx, `DELETE FROM photo_hotels WHERE hotel_id=$1;`, id)
 	if err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()

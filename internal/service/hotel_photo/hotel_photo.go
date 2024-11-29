@@ -1,4 +1,4 @@
-package photo
+package hotel_photo
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func (s Serv) Add(ctx context.Context, photos models.PhotoAddWithIDHotel) error 
 		s.log.Error(err.Error())
 		return err
 	}
-	s.log.Info(fmt.Sprintf("Add photo from %d", idHotel))
+	s.log.Info(fmt.Sprintf("Add hotel_photo from %d", idHotel))
 	return nil
 }
 
@@ -42,7 +42,7 @@ func (s Serv) Get(ctx context.Context, hotelID int) (*[]models.Photo, error) {
 		s.log.Error(err.Error())
 		return nil, err
 	}
-	s.log.Info(fmt.Sprintf("Get photo from %d", hotelID))
+	s.log.Info(fmt.Sprintf("Get hotel_photo from %d", hotelID))
 	return photos, nil
 }
 

@@ -9,22 +9,30 @@ create TABLE IF NOT EXISTS hotels
     address VARCHAR,
     email   VARCHAR,
     phone   VARCHAR,
-    links   JSONB
+    links   JSONB,
+    lat     varchar,
+    lon     varchar
 );
 
 
-create TABLE IF NOT EXISTS photos
+create TABLE IF NOT EXISTS photo_hotels
 (
     id       SERIAL PRIMARY KEY,
-    list_id  int,
     hotel_id int,
     name     VARCHAR,
     photo    varchar
+);
+create TABLE IF NOT EXISTS ratings
+(
+    id serial primary key,
+    id_user int,
+    id_hotel int,
+    rating float
 );
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 drop table if exists hotels;
-drop table if exists photos;
+drop table if exists photo_hotels;
 -- +goose StatementEnd

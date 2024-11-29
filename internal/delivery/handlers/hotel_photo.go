@@ -18,15 +18,15 @@ func InitPhotoHandler(service service.PhotoServ) PhotoHandler {
 	return PhotoHandler{service: service}
 }
 
-// @Summary Add photo
-// @Tags photo
+// @Summary Add hotel_photo
+// @Tags hotel_photo
 // @Accept  json
 // @Produce  json
 // @Param data body models.PhotoAddWithIDHotel true "add Photo"
 // @Success 200 {object} int "Successfully add"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /photo/add [post]
+// @Router /hotel_photo/add [post]
 func (h PhotoHandler) Add(g *gin.Context) {
 	var newPhotos models.PhotoAddWithIDHotel
 
@@ -46,15 +46,15 @@ func (h PhotoHandler) Add(g *gin.Context) {
 	g.JSON(http.StatusOK, gin.H{"out": "success"})
 }
 
-// @Summary Get photo hotel
-// @Tags photo
+// @Summary Get hotel_photo hotel
+// @Tags hotel_photo
 // @Accept  json
 // @Produce  json
 // @Param id query int true "HotelID"
 // @Success 200 {object} int "Successfully get"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /photo/{id} [get]
+// @Router /hotel_photo/{id} [get]
 func (h PhotoHandler) Get(g *gin.Context) {
 	id := g.Query("id")
 	aid, err := strconv.Atoi(id)
@@ -70,18 +70,18 @@ func (h PhotoHandler) Get(g *gin.Context) {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	g.JSON(http.StatusOK, gin.H{"photo": photo})
+	g.JSON(http.StatusOK, gin.H{"hotel_photo": photo})
 }
 
 // @Summary Delete photos
-// @Tags photo
+// @Tags hotel_photo
 // @Accept  json
 // @Produce  json
 // @Param data body models.PhotoDelete true "PhotoIDs"
 // @Success 200 {object} int "Successfully deleted"
 // @Failure 400 {object} map[string]string "Invalid id"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /photo/delete [delete]
+// @Router /hotel_photo/delete [delete]
 func (h PhotoHandler) Delete(g *gin.Context) {
 	var photo models.PhotoDelete
 	if err := g.ShouldBindJSON(&photo); err != nil {

@@ -42,7 +42,7 @@ func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error)
 
 func (r Repo) Get(ctx context.Context, id int) (*models.Admin, error) {
 	var admin models.Admin
-	row := r.db.QueryRowContext(ctx, `SELECT name, email, phone, photo from admins WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT name, email, phone, hotel_photo from admins WHERE id = $1;`, id)
 	err := row.Scan(&admin.Name, &admin.Email, &admin.Phone, &admin.Photo)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()

@@ -16,7 +16,7 @@ type HotelBase struct {
 	Email   string   `json:"email"`
 	Phone   string   `json:"phone"`
 	Links   []string `json:"links"`
-	Photo   []Photo  `json:"photo"`
+	Photo   []Photo  `json:"hotel_photo"`
 }
 
 type Hotel struct {
@@ -26,12 +26,12 @@ type Hotel struct {
 
 type HotelAddPhoto struct {
 	IDHotel int     `json:"id_hotel"`
-	Photo   []Photo `json:"photo"`
+	Photo   []Photo `json:"hotel_photo"`
 }
 
 type HotelDelPhoto struct {
 	IDHotel int     `json:"id_hotel"`
-	Photo   []Photo `json:"photo"`
+	Photo   []Photo `json:"hotel_photo"`
 }
 type HotelAddLink struct {
 	IDHotel int    `json:"id_hotel"`

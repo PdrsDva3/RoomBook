@@ -4,7 +4,7 @@ type AdminBase struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	Phone string `json:"phone"`
-	Photo string `json:"photo"`
+	Photo string `json:"hotel_photo"`
 }
 
 type Admin struct {
