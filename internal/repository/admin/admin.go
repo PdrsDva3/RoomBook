@@ -22,16 +22,15 @@ func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	row := transaction.QueryRowContext(ctx, `INSERT INTO admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`,
-		admin.Name, admin.Email, admin.Phone, admin.PWD, admin.Photo)
-
-	err = row.Scan(&id)
-	if err != nil {
-		if rbErr := transaction.Rollback(); rbErr != nil {
-			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
-		}
-		return 0, cerr.Err(cerr.Scan, err).Error()
-	}
+	_ = transaction.QueryRowContext(ctx, `SELECT 1;`)
+	//
+	//err = row.Scan(&id)
+	//if err != nil {
+	//	if rbErr := transaction.Rollback(); rbErr != nil {
+	//		return 0, cerr.Err(cerr.Rollback, rbErr).Error()
+	//	}
+	//	return 0, cerr.Err(cerr.Scan, err).Error()
+	//}
 	if err := transaction.Commit(); err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
