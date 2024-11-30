@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"roombook_backend/pkg/auth"
-	"roombook_backend/pkg/database/cached"
-	"roombook_backend/pkg/log"
+	"RoomBook/pkg/auth"
+	"RoomBook/pkg/database/cached"
+	"RoomBook/pkg/log"
 )
 
 type Middleware struct {

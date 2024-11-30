@@ -1,12 +1,12 @@
 package hotel
 
 import (
+	"RoomBook/internal/models"
+	"RoomBook/internal/repository"
+	"RoomBook/pkg/cerr"
 	"context"
 	"encoding/json"
 	"github.com/jmoiron/sqlx"
-	"roombook_backend/internal/models"
-	"roombook_backend/internal/repository"
-	"roombook_backend/pkg/cerr"
 )
 
 type Repo struct {

@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"RoomBook/pkg/config"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
-	"roombook_backend/pkg/config"
 	"time"
 )
 

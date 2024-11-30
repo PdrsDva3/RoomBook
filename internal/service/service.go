@@ -1,16 +1,25 @@
 package service
 
 import (
+	"RoomBook/internal/models"
 	"context"
-	"roombook_backend/internal/models"
 )
 
 type UserServ interface {
-	Create(ctx context.Context, user models.UserCreate) (int, error)
-	Get(ctx context.Context, id int) (*models.User, error)
+	Registration(ctx context.Context, user models.UserCreate) (int, error)
 	Login(ctx context.Context, user models.UserLogin) (int, error)
-	ChangePWD(ctx context.Context, user models.UserChangePWD) (int, error)
+	GetMe(ctx context.Context, id int) (*models.UserGet, error)
+	Get(ctx context.Context, id int) (*models.UserGet, error)
 	Delete(ctx context.Context, id int) error
+	AddPhoto(ctx context.Context, adding models.AddPhoto) error
+	BookRoom(ctx context.Context, data models.UserBookRoom) error
+}
+
+type UserChangeServ interface {
+	PWD(ctx context.Context, user models.UserChangePWD) error
+	Email(ctx context.Context, user models.UserChangeEmail) error
+	Phone(ctx context.Context, user models.UserChangePhone) error
+	UserData(ctx context.Context, user models.UserChange) error
 }
 
 type AdminServ interface {
