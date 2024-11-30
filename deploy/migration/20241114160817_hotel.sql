@@ -6,6 +6,7 @@ create TABLE IF NOT EXISTS hotels
     id      SERIAL PRIMARY KEY,
     name    VARCHAR,
     stars   int,
+    rating  float default 0,
     address VARCHAR,
     email   VARCHAR,
     phone   VARCHAR,
@@ -24,10 +25,10 @@ create TABLE IF NOT EXISTS photo_hotels
 );
 create TABLE IF NOT EXISTS ratings
 (
-    id serial primary key,
-    id_user int,
+    id       serial primary key,
+    id_user  int,
     id_hotel int,
-    rating float
+    rating   float
 );
 -- +goose StatementEnd
 

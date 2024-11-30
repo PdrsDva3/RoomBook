@@ -7,16 +7,21 @@ type HotelCreate struct {
 	Email   string   `json:"email"`
 	Phone   string   `json:"phone"`
 	Links   []string `json:"links"`
+	Lat     string   `json:"lat"`
+	Lon     string   `json:"lon"`
 }
 
 type HotelBase struct {
 	Name    string   `json:"name"`
 	Stars   int      `json:"stars"`
+	Rating  float64  `json:"rating"`
 	Address string   `json:"address"`
 	Email   string   `json:"email"`
 	Phone   string   `json:"phone"`
 	Links   []string `json:"links"`
 	Photo   []Photo  `json:"hotel_photo"`
+	Lat     string   `json:"lat"`
+	Lon     string   `json:"lon"`
 }
 
 type Hotel struct {

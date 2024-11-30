@@ -13,6 +13,26 @@ type Repo struct {
 	db *sqlx.DB
 }
 
+func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r Repo) Change(ctx context.Context, hotel models.Hotel) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r Repo) Admin(ctx context.Context, idHotel int, idAdmin int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r Repo) Rating(ctx context.Context, idHotel int, idUser int, rating float32) (int, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func InitHotelRepository(db *sqlx.DB) repository.HotelRepo {
 	return Repo{db: db}
 }
@@ -27,8 +47,8 @@ func (r Repo) Create(ctx context.Context, hotel models.HotelCreate) (int, error)
 	if err != nil {
 		return 0, cerr.Err(cerr.JSON, err).Error()
 	}
-	row := transaction.QueryRowContext(ctx, `INSERT INTO hotels (name, stars, address, email, phone, links) VALUES ($1, $2, $3, $4, $5, $6) returning id;`,
-		hotel.Name, hotel.Stars, hotel.Address, hotel.Email, hotel.Phone, linksJson)
+	row := transaction.QueryRowContext(ctx, `INSERT INTO hotels (name, stars, address, email, phone, links, lat, lon) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) returning id;`,
+		hotel.Name, hotel.Stars, hotel.Address, hotel.Email, hotel.Phone, linksJson, hotel.Lat, hotel.Lon)
 
 	err = row.Scan(&id)
 	if err != nil {
@@ -49,8 +69,8 @@ func (r Repo) Create(ctx context.Context, hotel models.HotelCreate) (int, error)
 func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	var hotel models.Hotel
 	var linksJSON []byte
-	row := r.db.QueryRowContext(ctx, `SELECT name, stars, address, email, phone, links from hotels WHERE id = $1;`, id)
-	err := row.Scan(&hotel.Name, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &linksJSON)
+	row := r.db.QueryRowContext(ctx, `SELECT name, rating, stars, address, email, phone, links, lat, lon from hotels WHERE id = $1;`, id)
+	err := row.Scan(&hotel.Name, &hotel.Rating, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &linksJSON, &hotel.Lat, &hotel.Lon)
 	if err != nil {
 		return nil, cerr.Err(cerr.InvalidEmail, err).Error()
 	}
@@ -58,7 +78,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 		return nil, cerr.Err(cerr.JSON, err).Error()
 	}
 	hotel.ID = id
-	rows, err := r.db.QueryContext(ctx, `SELECT id, list_id, hotel_id, name, hotel_photo from photo_hotels WHERE hotel_id = $1 ORDER BY list_id;`, id)
+	rows, err := r.db.QueryContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE hotel_id = $1;`, id)
 	if err != nil {
 		return nil, cerr.Err(cerr.Rows, err).Error()
 	}
@@ -72,7 +92,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	}
 
 	if len(hotel.Photo) == 0 {
-		row = r.db.QueryRowContext(ctx, `SELECT id, list_id, hotel_id, name, hotel_photo from photo_hotels WHERE id = $1 ORDER BY list_id;`, 0)
+		row = r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name from photo_hotels WHERE id = $1;`, 0)
 		var photo models.Photo
 		err = row.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
 		if err != nil {

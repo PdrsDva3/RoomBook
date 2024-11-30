@@ -22,6 +22,10 @@ type AdminRepo interface {
 type HotelRepo interface {
 	Create(ctx context.Context, hotel models.HotelCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.Hotel, error)
+	GetAll(ctx context.Context) ([]models.Hotel, error)
+	Change(ctx context.Context, hotel models.Hotel) error
+	Admin(ctx context.Context, idHotel int, idAdmin int)
+	Rating(ctx context.Context, idHotel int, idUser int, rating float32) (int, error)
 	Delete(ctx context.Context, id int) error
 }
 
