@@ -34,6 +34,5 @@ create TABLE IF NOT EXISTS ratings
 
 -- +goose Down
 -- +goose StatementBegin
-drop table if exists hotels;
-drop table if exists photo_hotels;
+drop table if exists hotels, photo_hotels, ratings;
 -- +goose StatementEnd

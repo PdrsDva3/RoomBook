@@ -1,11 +1,11 @@
 package admin
 
 import (
+	"RoomBook/internal/models"
+	"RoomBook/internal/repository"
+	"RoomBook/pkg/cerr"
 	"context"
 	"github.com/jmoiron/sqlx"
-	"roombook_backend/internal/models"
-	"roombook_backend/internal/repository"
-	"roombook_backend/pkg/cerr"
 )
 
 type Repo struct {
@@ -22,15 +22,15 @@ func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	_ = transaction.QueryRowContext(ctx, `SELECT 1;`)
-	//
-	//err = row.Scan(&id)
-	//if err != nil {
-	//	if rbErr := transaction.Rollback(); rbErr != nil {
-	//		return 0, cerr.Err(cerr.Rollback, rbErr).Error()
-	//	}
-	//	return 0, cerr.Err(cerr.Scan, err).Error()
-	//}
+	row := transaction.QueryRowContext(ctx, `INSERT into admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`)
+
+	err = row.Scan(&id)
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return 0, cerr.Err(cerr.Scan, err).Error()
+	}
 	if err := transaction.Commit(); err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
@@ -42,7 +42,7 @@ func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error)
 
 func (r Repo) Get(ctx context.Context, id int) (*models.Admin, error) {
 	var admin models.Admin
-	row := r.db.QueryRowContext(ctx, `SELECT name, email, phone, hotel_photo from admins WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT name, email, phone, photo from admins WHERE id = $1;`, id)
 	err := row.Scan(&admin.Name, &admin.Email, &admin.Phone, &admin.Photo)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()

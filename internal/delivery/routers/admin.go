@@ -1,12 +1,12 @@
 package routers
 
 import (
+	"RoomBook/internal/delivery/handlers"
+	"RoomBook/internal/repository/admin"
+	adminserv "RoomBook/internal/service/admin"
+	"RoomBook/pkg/log"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
-	"roombook_backend/internal/delivery/handlers"
-	"roombook_backend/internal/repository/admin"
-	adminserv "roombook_backend/internal/service/admin"
-	"roombook_backend/pkg/log"
 )
 
 func RegisterAdminRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {

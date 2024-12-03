@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"RoomBook/internal/models"
+	"RoomBook/internal/service"
 	"context"
 	"net/http"
-	"roombook_backend/internal/models"
-	"roombook_backend/internal/service"
 	"strconv"
 	"time"
 

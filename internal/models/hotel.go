@@ -22,6 +22,7 @@ type HotelBase struct {
 	Photo   []Photo  `json:"hotel_photo"`
 	Lat     string   `json:"lat"`
 	Lon     string   `json:"lon"`
+	Tags    []Tag    `json:"tags"`
 }
 
 type Hotel struct {
@@ -46,4 +47,25 @@ type HotelAddLink struct {
 type HotelDelLink struct {
 	IDHotel int    `json:"id_hotel"`
 	Link    string `json:"link"`
+}
+
+type HotelChange struct {
+	IDHotel int      `json:"id_hotel"`
+	Name    string   `json:"name"`
+	Stars   int      `json:"stars"`
+	Address string   `json:"address"`
+	Email   string   `json:"email"`
+	Phone   string   `json:"phone"`
+	Links   []string `json:"links"`
+}
+
+type HotelAdmin struct {
+	IDHotel int `json:"id_hotel"`
+	IDAdmin int `json:"id_admin"`
+}
+
+type HotelRating struct {
+	IDHotel int     `json:"id_hotel"`
+	IDUser  int     `json:"id_user"`
+	Rating  float32 `json:"rating"`
 }

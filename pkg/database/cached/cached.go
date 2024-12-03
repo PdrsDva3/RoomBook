@@ -1,6 +1,8 @@
 package cached
 
 import (
+	"RoomBook/internal/models"
+	"RoomBook/pkg/config"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,8 +12,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"go.opentelemetry.io/otel/trace"
-	"roombook_backend/internal/models"
-	"roombook_backend/pkg/config"
 	"strconv"
 	"time"
 )

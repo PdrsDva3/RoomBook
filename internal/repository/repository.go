@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"RoomBook/internal/models"
 	"context"
-	"roombook_backend/internal/models"
 )
 
 type UserRepo interface {
@@ -23,9 +23,9 @@ type HotelRepo interface {
 	Create(ctx context.Context, hotel models.HotelCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.Hotel, error)
 	GetAll(ctx context.Context) ([]models.Hotel, error)
-	Change(ctx context.Context, hotel models.Hotel) error
-	Admin(ctx context.Context, idHotel int, idAdmin int)
-	Rating(ctx context.Context, idHotel int, idUser int, rating float32) (int, error)
+	Change(ctx context.Context, hotel models.HotelChange) error
+	Admin(ctx context.Context, admin models.HotelAdmin) error
+	Rating(ctx context.Context, rating models.HotelRating) error
 	Delete(ctx context.Context, id int) error
 }
 

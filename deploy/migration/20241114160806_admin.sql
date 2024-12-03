@@ -21,6 +21,5 @@ create TABLE IF NOT EXISTS admin_hotel
 
 -- +goose Down
 -- +goose StatementBegin
-drop table if exists admins;
-drop table if exists admin_hotel;
+drop table if exists admins, admin_hotel;
 -- +goose StatementEnd

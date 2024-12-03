@@ -1,12 +1,12 @@
 package hotel_photo
 
 import (
+	"RoomBook/internal/models"
+	"RoomBook/internal/repository"
+	"RoomBook/internal/service"
+	"RoomBook/pkg/log"
 	"context"
 	"fmt"
-	"roombook_backend/internal/models"
-	"roombook_backend/internal/repository"
-	"roombook_backend/internal/service"
-	"roombook_backend/pkg/log"
 )
 
 type Serv struct {

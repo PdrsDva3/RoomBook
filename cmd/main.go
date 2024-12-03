@@ -1,10 +1,10 @@
 package main
 
 import (
-	"roombook_backend/internal/delivery"
-	"roombook_backend/pkg/config"
-	"roombook_backend/pkg/database"
-	"roombook_backend/pkg/log"
+	"RoomBook/internal/delivery"
+	"RoomBook/pkg/config"
+	"RoomBook/pkg/database"
+	"RoomBook/pkg/log"
 )
 
 func main() {

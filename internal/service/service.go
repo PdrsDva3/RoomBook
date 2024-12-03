@@ -1,8 +1,8 @@
 package service
 
 import (
+	"RoomBook/internal/models"
 	"context"
-	"roombook_backend/internal/models"
 )
 
 type UserServ interface {

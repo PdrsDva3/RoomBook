@@ -1,13 +1,13 @@
 package admin
 
 import (
+	"RoomBook/internal/models"
+	"RoomBook/pkg/cerr"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
 	"golang.org/x/net/context"
-	"roombook_backend/internal/models"
-	"roombook_backend/pkg/cerr"
 	"testing"
 )
 

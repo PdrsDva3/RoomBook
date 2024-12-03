@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"RoomBook/internal/models"
+	"RoomBook/internal/service"
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"roombook_backend/internal/models"
-	"roombook_backend/internal/service"
 	"strconv"
 	"time"
 )

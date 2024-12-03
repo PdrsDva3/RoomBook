@@ -1,12 +1,12 @@
 package routers
 
 import (
+	"RoomBook/internal/delivery/handlers"
+	"RoomBook/internal/repository/user"
+	userserv "RoomBook/internal/service/user"
+	"RoomBook/pkg/log"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
-	"roombook_backend/internal/delivery/handlers"
-	"roombook_backend/internal/repository/user"
-	userserv "roombook_backend/internal/service/user"
-	"roombook_backend/pkg/log"
 )
 
 func RegisterUserRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {

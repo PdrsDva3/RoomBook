@@ -1,11 +1,11 @@
 package database
 
 import (
+	"RoomBook/pkg/config"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
-	"roombook_backend/pkg/config"
 )
 
 func GetDB() *sqlx.DB {
