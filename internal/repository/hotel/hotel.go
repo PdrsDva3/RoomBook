@@ -19,13 +19,13 @@ func InitHotelRepository(db *sqlx.DB) repository.HotelRepo {
 
 func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 	var hotels []models.Hotel
-	var hotel models.Hotel
 	var linksJSON []byte
 	row, err := r.db.QueryContext(ctx, `SELECT id, name, rating, stars, address, email, phone, links, lat, lon from hotels;`)
 	if err != nil {
 		return nil, cerr.Err(cerr.Execution, err).Error()
 	}
 	for row.Next() {
+		var hotel models.Hotel
 		err := row.Scan(&hotel.ID, &hotel.Name, &hotel.Rating, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &linksJSON, &hotel.Lat, &hotel.Lon)
 		if err != nil {
 			return nil, cerr.Err(cerr.InvalidEmail, err).Error()
@@ -47,7 +47,7 @@ func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 		}
 
 		if len(hotel.Photo) == 0 {
-			roww := r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE id = $1;`, 0)
+			roww := r.db.QueryRowContext(ctx, `SELECT id, name, photo from photo_hotels WHERE id = $1;`, 0)
 			var photo models.PhotoWithoutIDHotel
 			err = roww.Scan(&photo.ID, &photo.Name, &photo.Photo)
 			if err != nil {

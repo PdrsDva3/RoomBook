@@ -2,7 +2,7 @@ package models
 
 type UserBase struct {
 	Name    string `json:"name"`
-	SurName string `json:"sur_name"`
+	SurName string `json:"surname"`
 	Email   string `json:"email"`
 }
 

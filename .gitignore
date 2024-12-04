@@ -31,3 +31,4 @@ go.mod
 go.sum
 
 .env
+.help
