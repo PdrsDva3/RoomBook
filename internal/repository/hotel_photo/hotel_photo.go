@@ -12,7 +12,7 @@ type Repo struct {
 	db *sqlx.DB
 }
 
-func InitPhotoRepository(db *sqlx.DB) repository.PhotoRepo {
+func InitPhotoRepository(db *sqlx.DB) repository.PhotoHotelRepo {
 	return Repo{db: db}
 }
 
@@ -51,7 +51,7 @@ func (r Repo) Get(ctx context.Context, hotelID int) (*[]models.Photo, error) {
 	}
 	for rows.Next() {
 		var photo models.Photo
-		err = rows.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
+		err = rows.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
 		if err != nil {
 			return nil, cerr.Err(cerr.Scan, err).Error()
 		}
@@ -60,7 +60,7 @@ func (r Repo) Get(ctx context.Context, hotelID int) (*[]models.Photo, error) {
 	if len(photos) == 0 {
 		row := r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name from photo_hotels WHERE id = $1;`, 0)
 		var photo models.Photo
-		err = row.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
+		err = row.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
 		if err != nil {
 			return nil, cerr.Err(cerr.InvalidCount, err).Error()
 		}

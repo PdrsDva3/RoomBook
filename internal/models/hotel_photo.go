@@ -16,7 +16,6 @@ type PhotoAdd struct {
 }
 
 type PhotoBase struct {
-	ListID int `json:"list_id"`
 	PhotoAdd
 }
 

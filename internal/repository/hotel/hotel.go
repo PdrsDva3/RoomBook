@@ -39,7 +39,7 @@ func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 		}
 		for rows.Next() {
 			var photo models.Photo
-			err = rows.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
+			err = rows.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
 			if err != nil {
 				return nil, cerr.Err(cerr.InvalidCount, err).Error()
 			}
@@ -47,9 +47,9 @@ func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 		}
 
 		if len(hotel.Photo) == 0 {
-			roww := r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name from photo_hotels WHERE id = $1;`, 0)
+			roww := r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE id = $1;`, 0)
 			var photo models.Photo
-			err = roww.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
+			err = roww.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
 			if err != nil {
 				return nil, cerr.Err(cerr.InvalidCount, err).Error()
 			}
@@ -119,32 +119,107 @@ func (r Repo) Admin(ctx context.Context, admin models.HotelAdmin) error {
 
 func (r Repo) Rating(ctx context.Context, rating models.HotelRating) error {
 	transaction, err := r.db.BeginTxx(ctx, nil)
+	var id, flag int
 	if err != nil {
 		return cerr.Err(cerr.Transaction, err).Error()
-	}
-	_ = transaction.QueryRowContext(ctx, `INSERT INTO ratings (id_user, id_hotel, rating) VALUES ($1, $2, $3);`,
-		rating.IDUser, rating.IDHotel, rating.Rating)
-
-	if err = transaction.Commit(); err != nil {
-		if rbErr := transaction.Rollback(); rbErr != nil {
-			return cerr.Err(cerr.Rollback, rbErr).Error()
-		}
-		return cerr.Err(cerr.Commit, err).Error()
 	}
 
 	rows, err := r.db.QueryContext(ctx, `SELECT rating from ratings WHERE id_hotel = $1;`, rating.IDHotel)
 	if err != nil {
 		return cerr.Err(cerr.Rows, err).Error()
 	}
-	cnt := 0.0
+	cnt := 1.0
 	rat := 0.0
-	rating := 0.0
+	ratAll := float64(rating.Rating)
 	for rows.Next() {
-		err = rows.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
+		err = rows.Scan(&rat)
 		if err != nil {
-			return nil, cerr.Err(cerr.InvalidCount, err).Error()
+			if rbErr := transaction.Rollback(); rbErr != nil {
+				return cerr.Err(cerr.Rollback, rbErr).Error()
+			}
+			return cerr.Err(cerr.Scan, err).Error()
 		}
-		hotel.Photo = append(hotel.Photo, photo)
+		ratAll += rat
+		cnt++
+	}
+
+	row := r.db.QueryRowContext(ctx, `SELECT COUNT(*) from ratings where id_hotel=$1 and id_user=$2;`, rating.IDHotel, rating.IDUser)
+	err = row.Scan(&flag)
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.Rows, err).Error()
+	}
+	if flag == 0 {
+		row = transaction.QueryRowContext(ctx, `INSERT INTO ratings (id_user, id_hotel, rating) VALUES ($1, $2, $3) returning id_hotel;`,
+			rating.IDUser, rating.IDHotel, rating.Rating)
+		err = row.Scan(&id)
+		if err != nil {
+			if rbErr := transaction.Rollback(); rbErr != nil {
+				return cerr.Err(cerr.Rollback, rbErr).Error()
+			}
+			return cerr.Err(cerr.Scan, err).Error()
+		}
+	} else {
+		row = r.db.QueryRowContext(ctx, `SELECT rating from ratings where id_hotel=$1 and id_user=$2;`, rating.IDHotel, rating.IDUser)
+		err = row.Scan(&rat)
+		if err != nil {
+			if rbErr := transaction.Rollback(); rbErr != nil {
+				return cerr.Err(cerr.Rollback, rbErr).Error()
+			}
+			return cerr.Err(cerr.Rows, err).Error()
+		}
+		cnt--
+		ratAll -= rat
+		result, errf := transaction.ExecContext(ctx, `UPDATE ratings SET rating=$3 WHERE id_user = $1 and id_hotel = $2;`, rating.IDUser, rating.IDHotel, rating.Rating)
+		if errf != nil {
+			if rbErr := transaction.Rollback(); rbErr != nil {
+				return cerr.Err(cerr.Rollback, rbErr).Error()
+			}
+			return cerr.Err(cerr.ExecContext, errf).Error()
+		}
+		count, errf := result.RowsAffected()
+		if errf != nil {
+			if rbErr := transaction.Rollback(); rbErr != nil {
+				return cerr.Err(cerr.Rollback, rbErr).Error()
+			}
+			return cerr.Err(cerr.Rows, errf).Error()
+		}
+		if count != 1 {
+			if rbErr := transaction.Rollback(); rbErr != nil {
+				return cerr.Err(cerr.Rollback, rbErr).Error()
+			}
+			return cerr.Err(cerr.NoOneRow, errf).Error()
+		}
+	}
+	ratAll /= cnt
+	result, err := transaction.ExecContext(ctx, `UPDATE hotels SET rating=$2 WHERE id=$1;`, rating.IDHotel, ratAll)
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.ExecContext, err).Error()
+	}
+	count, err := result.RowsAffected()
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.Rows, err).Error()
+	}
+
+	if count != 1 {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.NoOneRow, err).Error()
+	}
+	if err = transaction.Commit(); err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.Commit, err).Error()
 	}
 	return nil
 }
@@ -184,7 +259,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	row := r.db.QueryRowContext(ctx, `SELECT name, rating, stars, address, email, phone, links, lat, lon from hotels WHERE id = $1;`, id)
 	err := row.Scan(&hotel.Name, &hotel.Rating, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &linksJSON, &hotel.Lat, &hotel.Lon)
 	if err != nil {
-		return nil, cerr.Err(cerr.InvalidEmail, err).Error()
+		return nil, cerr.Err(cerr.Scan, err).Error()
 	}
 	if err = json.Unmarshal(linksJSON, &hotel.Links); err != nil {
 		return nil, cerr.Err(cerr.JSON, err).Error()
@@ -196,7 +271,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	}
 	for rows.Next() {
 		var photo models.Photo
-		err = rows.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
+		err = rows.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
 		if err != nil {
 			return nil, cerr.Err(cerr.InvalidCount, err).Error()
 		}
@@ -204,9 +279,9 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	}
 
 	if len(hotel.Photo) == 0 {
-		row = r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name from photo_hotels WHERE id = $1;`, 0)
+		row = r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE id = $1;`, 0)
 		var photo models.Photo
-		err = row.Scan(&photo.ID, &photo.ListID, &photo.HotelID, &photo.Name, &photo.Photo)
+		err = row.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
 		if err != nil {
 			return nil, cerr.Err(cerr.InvalidCount, err).Error()
 		}
@@ -254,12 +329,25 @@ func (r Repo) Delete(ctx context.Context, id int) error {
 		}
 		return cerr.Err(cerr.Rows, err).Error()
 	}
+	result, err = transaction.ExecContext(ctx, `DELETE FROM ratings WHERE id_hotel=$1;`, id)
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.ExecContext, err).Error()
+	}
+	count, err = result.RowsAffected()
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.Rows, err).Error()
+	}
 	if err = transaction.Commit(); err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()
 		}
 		return cerr.Err(cerr.Commit, err).Error()
 	}
-
 	return nil
 }

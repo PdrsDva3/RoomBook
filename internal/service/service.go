@@ -24,6 +24,10 @@ type AdminServ interface {
 type HotelServ interface {
 	Create(ctx context.Context, hotel models.HotelCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.Hotel, error)
+	GetAll(ctx context.Context) ([]models.Hotel, error)
+	Change(ctx context.Context, hotel models.HotelChange) error
+	Admin(ctx context.Context, admin models.HotelAdmin) error
+	Rating(ctx context.Context, hotel models.HotelRating) error
 	Delete(ctx context.Context, id int) error
 }
 

@@ -29,7 +29,7 @@ type HotelRepo interface {
 	Delete(ctx context.Context, id int) error
 }
 
-type PhotoRepo interface {
+type PhotoHotelRepo interface {
 	Add(ctx context.Context, photos []models.PhotoAdd) error
 	Get(ctx context.Context, hotelID int) (*[]models.Photo, error)
 	Delete(ctx context.Context, id []int) error

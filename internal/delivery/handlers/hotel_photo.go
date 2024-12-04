@@ -26,7 +26,7 @@ func InitPhotoHandler(service service.PhotoServ) PhotoHandler {
 // @Success 200 {object} int "Successfully add"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /hotel_photo/add [post]
+// @Router /hotel/photo/ [post]
 func (h PhotoHandler) Add(g *gin.Context) {
 	var newPhotos models.PhotoAddWithIDHotel
 
@@ -46,7 +46,7 @@ func (h PhotoHandler) Add(g *gin.Context) {
 	g.JSON(http.StatusOK, gin.H{"out": "success"})
 }
 
-// @Summary Get hotel_photo hotel
+// @Summary Get hotel_photo
 // @Tags hotel_photo
 // @Accept  json
 // @Produce  json
@@ -54,7 +54,7 @@ func (h PhotoHandler) Add(g *gin.Context) {
 // @Success 200 {object} int "Successfully get"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /hotel_photo/{id} [get]
+// @Router /hotel/photo/{id} [get]
 func (h PhotoHandler) Get(g *gin.Context) {
 	id := g.Query("id")
 	aid, err := strconv.Atoi(id)
@@ -81,7 +81,7 @@ func (h PhotoHandler) Get(g *gin.Context) {
 // @Success 200 {object} int "Successfully deleted"
 // @Failure 400 {object} map[string]string "Invalid id"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /hotel_photo/delete [delete]
+// @Router /hotel/photo/ [delete]
 func (h PhotoHandler) Delete(g *gin.Context) {
 	var photo models.PhotoDelete
 	if err := g.ShouldBindJSON(&photo); err != nil {

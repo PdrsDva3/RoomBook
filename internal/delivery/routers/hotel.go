@@ -16,9 +16,13 @@ func RegisterHotelRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.Rout
 	hotelService := hotelserv.InitHotelService(hotelRepo, logger)
 	hotelHandler := handlers.InitHotelHandlers(hotelService)
 
-	hotelRouter.POST("/create", hotelHandler.Create)
+	hotelRouter.POST("/", hotelHandler.Create)
 	hotelRouter.GET("/:id", hotelHandler.Get)
-	hotelRouter.DELETE("/delete/:id", hotelHandler.Delete)
+	hotelRouter.GET("/", hotelHandler.GetAll)
+	hotelRouter.PUT("/", hotelHandler.Change)
+	hotelRouter.POST("/:idHotel/:idAdmin", hotelHandler.Admin)
+	hotelRouter.POST("/rating", hotelHandler.Rating)
+	hotelRouter.DELETE("/:id", hotelHandler.Delete)
 
 	return hotelRouter
 }

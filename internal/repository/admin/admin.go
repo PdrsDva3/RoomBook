@@ -22,7 +22,7 @@ func (r Repo) Create(ctx context.Context, admin models.AdminCreate) (int, error)
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	row := transaction.QueryRowContext(ctx, `INSERT into admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`)
+	row := transaction.QueryRowContext(ctx, `INSERT into admins (name, email, phone, hashed_password, photo) VALUES ($1, $2, $3, $4, $5) returning id;`, admin.Name, admin.Email, admin.Phone, admin.PWD, admin.Photo)
 
 	err = row.Scan(&id)
 	if err != nil {

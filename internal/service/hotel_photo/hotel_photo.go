@@ -10,11 +10,11 @@ import (
 )
 
 type Serv struct {
-	Repo repository.PhotoRepo
+	Repo repository.PhotoHotelRepo
 	log  *log.Logs
 }
 
-func InitPhotoService(photoRepo repository.PhotoRepo, log *log.Logs) service.PhotoServ {
+func InitPhotoService(photoRepo repository.PhotoHotelRepo, log *log.Logs) service.PhotoServ {
 	return Serv{Repo: photoRepo, log: log}
 }
 

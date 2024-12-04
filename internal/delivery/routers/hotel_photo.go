@@ -10,15 +10,15 @@ import (
 )
 
 func RegisterPhotoRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
-	photoRouter := r.Group("/hotel_photo")
+	photoRouter := r.Group("/hotel/photo")
 
 	photoRepo := hotel_photo.InitPhotoRepository(db)
 	photoService := photoserv.InitPhotoService(photoRepo, logger)
 	photoHandler := handlers.InitPhotoHandler(photoService)
 
-	photoRouter.POST("/add", photoHandler.Add)
+	photoRouter.POST("/", photoHandler.Add)
 	photoRouter.GET("/:id", photoHandler.Get)
-	photoRouter.DELETE("/delete", photoHandler.Delete)
+	photoRouter.DELETE("/", photoHandler.Delete)
 
 	return photoRouter
 }

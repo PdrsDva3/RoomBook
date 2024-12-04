@@ -30,6 +30,8 @@ create TABLE IF NOT EXISTS ratings
     id_hotel int,
     rating   float
 );
+
+INSERT INTO photo_hotels (id, hotel_id, name, photo) VALUES (0, 0, 'base', 'base');
 -- +goose StatementEnd
 
 -- +goose Down
