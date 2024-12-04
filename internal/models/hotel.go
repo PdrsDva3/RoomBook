@@ -12,17 +12,17 @@ type HotelCreate struct {
 }
 
 type HotelBase struct {
-	Name    string   `json:"name"`
-	Stars   int      `json:"stars"`
-	Rating  float64  `json:"rating"`
-	Address string   `json:"address"`
-	Email   string   `json:"email"`
-	Phone   string   `json:"phone"`
-	Links   []string `json:"links"`
-	Photo   []Photo  `json:"hotel_photo"`
-	Lat     string   `json:"lat"`
-	Lon     string   `json:"lon"`
-	Tags    []Tag    `json:"tags"`
+	Name    string                `json:"name"`
+	Stars   int                   `json:"stars"`
+	Rating  float64               `json:"rating"`
+	Address string                `json:"address"`
+	Email   string                `json:"email"`
+	Phone   string                `json:"phone"`
+	Links   []string              `json:"links"`
+	Photo   []PhotoWithoutIDHotel `json:"hotel_photo"`
+	Lat     string                `json:"lat"`
+	Lon     string                `json:"lon"`
+	Tags    []Tag                 `json:"tags"`
 }
 
 type Hotel struct {

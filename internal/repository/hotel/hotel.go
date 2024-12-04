@@ -33,13 +33,13 @@ func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 		if err = json.Unmarshal(linksJSON, &hotel.Links); err != nil {
 			return nil, cerr.Err(cerr.JSON, err).Error()
 		}
-		rows, err := r.db.QueryContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE hotel_id = $1;`, hotel.ID)
+		rows, err := r.db.QueryContext(ctx, `SELECT id, name, photo from photo_hotels WHERE hotel_id = $1;`, hotel.ID)
 		if err != nil {
 			return nil, cerr.Err(cerr.Rows, err).Error()
 		}
 		for rows.Next() {
-			var photo models.Photo
-			err = rows.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
+			var photo models.PhotoWithoutIDHotel
+			err = rows.Scan(&photo.ID, &photo.Name, &photo.Photo)
 			if err != nil {
 				return nil, cerr.Err(cerr.InvalidCount, err).Error()
 			}
@@ -48,8 +48,8 @@ func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 
 		if len(hotel.Photo) == 0 {
 			roww := r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE id = $1;`, 0)
-			var photo models.Photo
-			err = roww.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
+			var photo models.PhotoWithoutIDHotel
+			err = roww.Scan(&photo.ID, &photo.Name, &photo.Photo)
 			if err != nil {
 				return nil, cerr.Err(cerr.InvalidCount, err).Error()
 			}
@@ -265,13 +265,13 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 		return nil, cerr.Err(cerr.JSON, err).Error()
 	}
 	hotel.ID = id
-	rows, err := r.db.QueryContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE hotel_id = $1;`, id)
+	rows, err := r.db.QueryContext(ctx, `SELECT id, name, photo from photo_hotels WHERE hotel_id = $1;`, id)
 	if err != nil {
 		return nil, cerr.Err(cerr.Rows, err).Error()
 	}
 	for rows.Next() {
-		var photo models.Photo
-		err = rows.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
+		var photo models.PhotoWithoutIDHotel
+		err = rows.Scan(&photo.ID, &photo.Name, &photo.Photo)
 		if err != nil {
 			return nil, cerr.Err(cerr.InvalidCount, err).Error()
 		}
@@ -279,9 +279,9 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 	}
 
 	if len(hotel.Photo) == 0 {
-		row = r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE id = $1;`, 0)
-		var photo models.Photo
-		err = row.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
+		row = r.db.QueryRowContext(ctx, `SELECT id, name, photo from photo_hotels WHERE id = $1;`, 0)
+		var photo models.PhotoWithoutIDHotel
+		err = row.Scan(&photo.ID, &photo, &photo.Name, &photo.Photo)
 		if err != nil {
 			return nil, cerr.Err(cerr.InvalidCount, err).Error()
 		}
