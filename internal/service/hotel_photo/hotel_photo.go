@@ -36,14 +36,25 @@ func (s Serv) Add(ctx context.Context, photos models.PhotoAddWithIDHotel) error 
 	return nil
 }
 
-func (s Serv) Get(ctx context.Context, hotelID int) (*[]models.Photo, error) {
+func (s Serv) Get(ctx context.Context, hotelID int) (*models.PhotoWithIDHotel, error) {
 	photos, err := s.Repo.Get(ctx, hotelID)
 	if err != nil {
 		s.log.Error(err.Error())
 		return nil, err
 	}
+	var photoList models.PhotoWithIDHotel
+	photoList.HotelID = hotelID
+	photoList.Photos = make([]models.PhotoWithoutIDHotel, len(*photos))
+	for i, photo := range *photos {
+		photoList.Photos[i] = models.PhotoWithoutIDHotel{
+			ID:    photo.ID,
+			Name:  photo.Name,
+			Photo: photo.Photo,
+		}
+	}
+
 	s.log.Info(fmt.Sprintf("Get hotel_photo from %d", hotelID))
-	return photos, nil
+	return &photoList, nil
 }
 
 func (s Serv) Delete(ctx context.Context, id []int) error {

@@ -58,7 +58,7 @@ func (r Repo) Get(ctx context.Context, hotelID int) (*[]models.Photo, error) {
 		photos = append(photos, photo)
 	}
 	if len(photos) == 0 {
-		row := r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name from photo_hotels WHERE id = $1;`, 0)
+		row := r.db.QueryRowContext(ctx, `SELECT id, hotel_id, name, photo from photo_hotels WHERE id = $1;`, 0)
 		var photo models.Photo
 		err = row.Scan(&photo.ID, &photo.HotelID, &photo.Name, &photo.Photo)
 		if err != nil {
@@ -95,12 +95,12 @@ func (r Repo) Delete(ctx context.Context, ids []int) error {
 			}
 			return cerr.Err(cerr.NoOneRow, err).Error()
 		}
-		if err = transaction.Commit(); err != nil {
-			if rbErr := transaction.Rollback(); rbErr != nil {
-				return cerr.Err(cerr.Rollback, rbErr).Error()
-			}
-			return cerr.Err(cerr.Commit, err).Error()
+	}
+	if err = transaction.Commit(); err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
 		}
+		return cerr.Err(cerr.Commit, err).Error()
 	}
 	return nil
 }

@@ -15,6 +15,17 @@ type PhotoAdd struct {
 	PhotoAddWithoutIDHotel
 }
 
+type PhotoWithoutIDHotel struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Photo string `json:"hotel_photo"`
+}
+
+type PhotoWithIDHotel struct {
+	HotelID int `json:"hotel_id"`
+	Photos  []PhotoWithoutIDHotel
+}
+
 type PhotoBase struct {
 	PhotoAdd
 }
