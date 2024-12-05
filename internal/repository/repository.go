@@ -25,9 +25,16 @@ type AdminRepo interface {
 	Create(ctx context.Context, admin models.AdminCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.Admin, error)
 	GetPWDbyEmail(ctx context.Context, admin string) (int, string, error)
-	ChangePWD(ctx context.Context, admin models.AdminChangePWD) (int, error)
 	Delete(ctx context.Context, id int) error
 }
+
+type AdminChangeRepo interface {
+	ChangePWD(ctx context.Context, admin models.AdminChangePWD) error
+	ChangeEmail(ctx context.Context, admin models.AdminChangeEmail) error
+	ChangePhone(ctx context.Context, admin models.AdminChangePhone) error
+	ChangeAdminData(ctx context.Context, admin models.AdminChange) error
+}
+
 type HotelRepo interface {
 	Create(ctx context.Context, hotel models.HotelCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.Hotel, error)

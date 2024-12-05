@@ -64,25 +64,6 @@ func (s Serv) Login(ctx context.Context, admin models.AdminLogin) (int, error) {
 	return id, nil
 }
 
-func (s Serv) ChangePWD(ctx context.Context, admin models.AdminChangePWD) (int, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(admin.NewPWD), 10)
-	if err != nil {
-		s.log.Error(cerr.Err(cerr.Hash, err).Str())
-		return 0, cerr.Err(cerr.Hash, err).Error()
-	}
-	newPWD := models.AdminChangePWD{
-		ID:     admin.ID,
-		NewPWD: string(hash),
-	}
-	id, err := s.Repo.ChangePWD(ctx, newPWD)
-	if err != nil {
-		s.log.Error(err.Error())
-		return 0, err
-	}
-	s.log.Info(fmt.Sprintf("change pwd admin %v", id))
-	return id, nil
-}
-
 func (s Serv) Delete(ctx context.Context, id int) error {
 	err := s.Repo.Delete(ctx, id)
 	if err != nil {

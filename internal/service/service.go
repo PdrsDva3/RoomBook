@@ -26,8 +26,14 @@ type AdminServ interface {
 	Create(ctx context.Context, admin models.AdminCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.Admin, error)
 	Login(ctx context.Context, admin models.AdminLogin) (int, error)
-	ChangePWD(ctx context.Context, admin models.AdminChangePWD) (int, error)
 	Delete(ctx context.Context, id int) error
+}
+
+type AdminChangeServ interface {
+	PWD(ctx context.Context, admin models.AdminChangePWD) error
+	Email(ctx context.Context, admin models.AdminChangeEmail) error
+	Phone(ctx context.Context, admin models.AdminChangePhone) error
+	AdminData(ctx context.Context, admin models.AdminChange) error
 }
 
 type HotelServ interface {

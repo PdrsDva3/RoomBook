@@ -26,3 +26,19 @@ type AdminChangePWD struct {
 	ID     int    `json:"id"`
 	NewPWD string `json:"password"`
 }
+
+type AdminChange struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Photo string `json:"photo"`
+}
+
+type AdminChangeEmail struct {
+	ID    int    `json:"id"`
+	Email string `json:"email"`
+}
+
+type AdminChangePhone struct {
+	ID    int    `json:"id"`
+	Phone string `json:"phone"`
+}
