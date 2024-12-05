@@ -4,21 +4,24 @@ import (
 	"RoomBook/internal/delivery"
 	"RoomBook/pkg/config"
 	"RoomBook/pkg/database"
+	"RoomBook/pkg/database/cached"
 	"RoomBook/pkg/log"
 )
 
 func main() {
-	log, loggerInfoFile, loggerErrorFile := log.InitLogger()
+	loger, loggerInfoFile, loggerErrorFile := log.InitLogger()
 
 	defer loggerInfoFile.Close()
 	defer loggerErrorFile.Close()
 
 	config.InitConfig()
-	log.Info("Config initialized")
+	loger.Info("Config initialized")
 
 	db := database.GetDB()
-	log.Info("Database initialized")
+	loger.Info("Database initialized")
 
-	delivery.Start(db, log)
+	redis := cached.InitRedis()
+
+	delivery.Start(db, loger, redis)
 
 }

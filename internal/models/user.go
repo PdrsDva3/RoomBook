@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"github.com/guregu/null"
+	"time"
+)
 
 type UserBase struct {
 	Name    string `json:"name"`
@@ -22,7 +25,7 @@ type UserLogin struct {
 type UserGet struct {
 	ID int `json:"id"`
 	UserBase
-	Photo string `json:"photo"`
+	Photo null.String `json:"photo"`
 }
 
 type UserChange struct {
@@ -57,4 +60,9 @@ type UserBookRoom struct {
 type AddPhoto struct {
 	ID    int    `json:"id"`
 	Photo string `json:"photo"`
+}
+
+type JWTPair struct {
+	JWTToken string `json:"jwt_token"`
+	Refresh  string `json:"refresh_token"`
 }

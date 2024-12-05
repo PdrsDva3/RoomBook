@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
-	"go.opentelemetry.io/otel/trace"
+	//"go.opentelemetry.io/otel/trace"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func Start(db *sqlx.DB, log *log.Logs, session cached.Session, tracer trace.Tracer) {
+func Start(db *sqlx.DB, log *log.Logs, session cached.Session) {
 	r := gin.Default()
 	r.ForwardedByClientIP = true
 
@@ -27,7 +27,7 @@ func Start(db *sqlx.DB, log *log.Logs, session cached.Session, tracer trace.Trac
 	middlewareStruct := middleware.InitMiddleware(log, jwtUtils, session)
 	r.Use(middlewareStruct.CORSMiddleware())
 
-	routers.InitRouting(r, db, log, middlewareStruct) // jwtUtils, session, tracer
+	routers.InitRouting(r, db, log, jwtUtils, session) // jwtUtils, session, tracer
 
 	if err := r.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("error running client: %v", err.Error()))

@@ -4,39 +4,76 @@ import (
 	"RoomBook/internal/models"
 	"RoomBook/internal/repository"
 	"RoomBook/internal/service"
+	"RoomBook/pkg/auth"
 	"RoomBook/pkg/cerr"
+	"RoomBook/pkg/database/cached"
 	"RoomBook/pkg/log"
 	"context"
+	"errors"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type ServUser struct {
-	Repo repository.UserRepo
-	log  *log.Logs
+	Repo    repository.UserRepo
+	log     *log.Logs
+	jwt     auth.JWTUtil
+	session cached.Session
 }
 
-func InitUserService(userRepo repository.UserRepo, log *log.Logs) service.UserServ {
-	return ServUser{Repo: userRepo, log: log}
+func InitUserService(userRepo repository.UserRepo, log *log.Logs, jwt auth.JWTUtil, session cached.Session) service.UserServ {
+	return ServUser{Repo: userRepo, log: log, jwt: jwt, session: session}
 }
 
-func (s ServUser) Create(ctx context.Context, user models.UserCreate) (int, error) {
+func (s ServUser) Registration(ctx context.Context, user models.UserCreate) (*models.JWTPair, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		s.log.Error(err.Error())
-		return 0, err
+		return nil, err
 	}
 	newUser := models.UserCreate{
 		UserBase: user.UserBase,
 		Password: string(hashedPassword),
 	}
+
 	id, err := s.Repo.Create(ctx, newUser)
 	if err != nil {
 		s.log.Error(err.Error())
-		return 0, err
+		return nil, err
 	}
+
+	token := s.jwt.CreateToken(id)
+	if token == "" {
+		return nil, errors.New("token is empty")
+	}
+
+	uuidBytes, err := uuid.NewV4()
+	if err != nil {
+		s.log.Error(err.Error())
+		return nil, err
+	}
+
+	sd := cached.SessionData{
+		RefreshToken:   uuidBytes.String(),
+		LoginTimeStamp: time.Now(),
+	}
+
+	err = s.session.Set(ctx, id, sd)
+	if err != nil {
+		s.log.Error(err.Error())
+		return nil, err
+	}
+
+	res := models.JWTPair{
+		JWTToken: token,
+		Refresh:  uuidBytes.String(),
+	}
+
 	s.log.Info(fmt.Sprintf("create user %v", id))
-	return id, nil
+
+	return &res, nil
 }
 
 func (s ServUser) GetMe(ctx context.Context, id int) (*models.UserGet, error) {
@@ -84,16 +121,6 @@ func (s ServUser) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s ServUser) Registration(ctx context.Context, user models.UserCreate) (int, error) {
-	id, err := s.Repo.Create(ctx, user)
-	if err != nil {
-		s.log.Error(err.Error())
-		return 0, err
-	}
-	s.log.Info(fmt.Sprintf("registred user %v", id))
-	return id, nil
-}
-
 func (s ServUser) AddPhoto(ctx context.Context, adding models.AddPhoto) error {
 	err := s.Repo.AddPhoto(ctx, adding)
 	if err != nil {
@@ -112,4 +139,8 @@ func (s ServUser) BookRoom(ctx context.Context, data models.UserBookRoom) error 
 	}
 	s.log.Info(fmt.Sprintf("room book =)"))
 	return nil
+}
+
+func (s ServUser) RefreshToken(ctx context.Context, refreshToken string) (*models.JWTPair, error) {
+	
 }

@@ -58,3 +58,17 @@ func (j JWTUtil) Authorize(tokenString string) (int, error) {
 
 	return userClaim.ID, nil
 }
+
+func (j JWTUtil) ParseToken(tokenString string) (int, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &userClaim{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(j.secret), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	claims, ok := token.Claims.(*userClaim)
+	if !ok {
+		return 0, nil
+	}
+	return claims.ID, nil
+}

@@ -22,7 +22,7 @@ func (r RepoUserChange) ChangePWD(ctx context.Context, user models.UserChangePWD
 		return cerr.Err(cerr.Transaction, err).Error()
 	}
 
-	result, err := tr.ExecContext(ctx, `UPDATE users SET hashed_pwd=$2 WHERE id=$1;`, user.ID, user.Password)
+	result, err := tr.ExecContext(ctx, `UPDATE users SET hashed_pwd=$1 WHERE id=$2;`, user.Password, user.ID)
 	if err != nil {
 		if rbErr := tr.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()
@@ -59,7 +59,7 @@ func (r RepoUserChange) ChangeEmail(ctx context.Context, user models.UserChangeE
 		return cerr.Err(cerr.Transaction, err).Error()
 	}
 
-	result, err := tr.ExecContext(ctx, `UPDATE users SET photo=$2 WHERE id=$1;`, user.ID, user.Email)
+	result, err := tr.ExecContext(ctx, `UPDATE users SET email=$1 WHERE id=$2;`, user.Email, user.ID)
 	if err != nil {
 		if rbErr := tr.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()
@@ -96,7 +96,7 @@ func (r RepoUserChange) ChangePhone(ctx context.Context, user models.UserChangeP
 		return cerr.Err(cerr.Transaction, err).Error()
 	}
 
-	result, err := tr.ExecContext(ctx, `UPDATE users SET photo=$2 WHERE id=$1;`, user.ID, user.Phone)
+	result, err := tr.ExecContext(ctx, `UPDATE users SET phone=$1 WHERE id=$2;`, user.Phone, user.ID)
 	if err != nil {
 		if rbErr := tr.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()

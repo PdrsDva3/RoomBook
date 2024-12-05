@@ -21,11 +21,11 @@ func InitUserHandler(service service.UserServ) UserHandler {
 	}
 }
 
-// @Summary Create user
+// @Summary Registrate user
 // @Tags user
 // @Accept  json
 // @Produce  json
-// @Param data body models.UserCreate true "user create"
+// @Param data body models.UserCreate true "user creation"
 // @Success 200 {object} int "Successfully created user"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -41,13 +41,13 @@ func (h UserHandler) Create(g *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	id, err := h.service.Create(ctx, newUser)
+	jwtPair, err := h.service.Registration(ctx, newUser)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	g.JSON(http.StatusOK, gin.H{"id": id})
+	g.JSON(http.StatusOK, gin.H{"accessToken": jwtPair.JWTToken, "refreshToken": jwtPair.Refresh})
 }
 
 // @Summary Get user
@@ -76,34 +76,6 @@ func (h UserHandler) Get(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
-}
-
-// @Summary Change password
-// @Tags user
-// @Accept  json
-// @Produce  json
-// @Param data body models.UserChangePWD true "change password"
-// @Success 200 {object} int "Success changing"
-// @Failure 400 {object} map[string]string "Invalid id"
-// @Failure 500 {object} map[string]string "Internal server error"
-// @Router /user/change/pwd [put]
-func (h UserHandler) ChangePWD(g *gin.Context) {
-	var user models.UserChangePWD
-	if err := g.ShouldBindJSON(&user); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	id, err := h.service.ChangePWD(ctx, user)
-	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	g.JSON(http.StatusOK, gin.H{"change": "success", "id": id})
 }
 
 // @Summary Login user
@@ -160,3 +132,16 @@ func (h UserHandler) Delete(g *gin.Context) {
 	}
 	g.JSON(http.StatusOK, gin.H{"delete": id})
 }
+
+// @Summary Delete user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id query int true "UserID"
+// @Success 200 {object} int "Successfully deleted"
+// @Failure 400 {object} map[string]string "Invalid id"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/delete/{id} [delete]
+//func (h UserHandler) Update(g *gin.Context) {
+//
+//}
