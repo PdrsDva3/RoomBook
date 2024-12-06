@@ -22,8 +22,8 @@ func (r RepoUser) Create(ctx context.Context, user models.UserCreate) (int, erro
 	if err != nil {
 		return 0, cerr.Err(cerr.Transaction, err).Error()
 	}
-	row := transaction.QueryRowContext(ctx, `INSERT INTO users (name, sur_name, email, hashed_password) VALUES ($1, $2, $3, $4) returning id;`,
-		user.Name, user.Surname, user.Email, user.Password)
+	row := transaction.QueryRowContext(ctx, `INSERT INTO users (name, surname, email, hashed_pwd, phone) VALUES ($1, $2, $3, $4, $5) returning id;`,
+		user.Name, user.Surname, user.Email, user.Password, user.Phone)
 
 	err = row.Scan(&id)
 	if err != nil {
@@ -43,49 +43,13 @@ func (r RepoUser) Create(ctx context.Context, user models.UserCreate) (int, erro
 
 func (r RepoUser) Get(ctx context.Context, id int) (*models.UserGet, error) {
 	var user models.UserGet
-	row := r.db.QueryRowContext(ctx, `SELECT name, sur_name, email from users WHERE id = $1;`, id)
-	err := row.Scan(&user.Name, &user.Surname, &user.Email)
+	row := r.db.QueryRowContext(ctx, `SELECT name, surname, email, phone, photo from users WHERE id = $1;`, id)
+	err := row.Scan(&user.Name, &user.Surname, &user.Email, &user.Phone, &user.Photo)
 	if err != nil {
 		return nil, cerr.Err(cerr.Scan, err).Error()
 	}
 	user.ID = id
 	return &user, nil
-}
-
-func (r RepoUser) ChangePWD(ctx context.Context, user models.UserChangePWD) (int, error) {
-	transaction, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return 0, cerr.Err(cerr.Transaction, err).Error()
-	}
-	result, err := transaction.ExecContext(ctx, `UPDATE users SET hashed_password=$2 WHERE id=$1;`, user.ID, user.Password)
-	if err != nil {
-		if rbErr := transaction.Rollback(); rbErr != nil {
-			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
-		}
-		return 0, cerr.Err(cerr.ExecContext, err).Error()
-	}
-	count, err := result.RowsAffected()
-	if err != nil {
-		if rbErr := transaction.Rollback(); rbErr != nil {
-			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
-		}
-		return 0, cerr.Err(cerr.Rows, err).Error()
-	}
-
-	if count != 1 {
-		if rbErr := transaction.Rollback(); rbErr != nil {
-			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
-		}
-		return 0, cerr.Err(cerr.NoOneRow, err).Error()
-	}
-
-	if err = transaction.Commit(); err != nil {
-		if rbErr := transaction.Rollback(); rbErr != nil {
-			return 0, cerr.Err(cerr.Rollback, rbErr).Error()
-		}
-		return 0, cerr.Err(cerr.Commit, err).Error()
-	}
-	return user.ID, nil
 }
 
 func (r RepoUser) Delete(ctx context.Context, id int) error {
@@ -128,7 +92,7 @@ func (r RepoUser) AddPhoto(ctx context.Context, adding models.AddPhoto) error {
 		return cerr.Err(cerr.Transaction, err).Error()
 	}
 
-	result, err := tr.ExecContext(ctx, `UPDATE users SET photo=$2 WHERE id=$1;`, adding.ID, adding.Photo)
+	result, err := tr.ExecContext(ctx, `UPDATE users SET photo=$1 WHERE id=$2;`, adding.Photo, adding.ID)
 	if err != nil {
 		if rbErr := tr.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()
@@ -177,10 +141,10 @@ func (r RepoUser) BookRoom(ctx context.Context, data models.UserBookRoom) error 
 	return nil
 }
 
-func (r RepoUser) GetPWDbyEmail(ctx context.Context, user string) (int, string, error) {
+func (r RepoUser) GetPWDbyEmail(ctx context.Context, email string) (int, string, error) {
 	var pwd string
 	var id int
-	rows := r.db.QueryRowContext(ctx, `SELECT id,  hashed_password from users WHERE email = $1;`, user)
+	rows := r.db.QueryRowContext(ctx, `SELECT id,  hashed_pwd from users WHERE email = $1;`, email)
 	err := rows.Scan(&id, &pwd)
 	if err != nil {
 		return 0, "", cerr.Err(cerr.Scan, err).Error()

@@ -8,7 +8,7 @@ import (
 type UserRepo interface {
 	Create(ctx context.Context, user models.UserCreate) (int, error)
 	Get(ctx context.Context, id int) (*models.UserGet, error)
-	GetPWDbyEmail(ctx context.Context, user string) (int, string, error)
+	GetPWDbyEmail(ctx context.Context, email string) (int, string, error)
 	BookRoom(ctx context.Context, data models.UserBookRoom) error
 	AddPhoto(ctx context.Context, adding models.AddPhoto) error
 	Delete(ctx context.Context, id int) error

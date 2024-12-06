@@ -27,17 +27,17 @@ const (
 	RedisPort     = "REDIS_PORT"
 
 	// данные для jaeger
-	JaegerHost = "JAEGER_HOST"
-	JaegerPort = "JAEGER_PORT"
+	//JaegerHost = "JAEGER_HOST"
+	//JaegerPort = "JAEGER_PORT"
 
 	// данные для чата
-	DBMaxOpenConns = "DB_MAX_OPEN_CONNS"
+	//DBMaxOpenConns = "DB_MAX_OPEN_CONNS"
 )
 
 func InitConfig() {
 	envPath, _ := os.Getwd()
 	envPath = filepath.Join(envPath, "..")
-	envPath = filepath.Join(envPath, "/deploy")
+	envPath = filepath.Join(envPath, "/RoomBook/deploy")
 
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")

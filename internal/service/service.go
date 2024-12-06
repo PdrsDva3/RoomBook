@@ -6,13 +6,14 @@ import (
 )
 
 type UserServ interface {
-	Registration(ctx context.Context, user models.UserCreate) (int, error)
+	Registration(ctx context.Context, user models.UserCreate) (*models.JWTPair, error)
 	Login(ctx context.Context, user models.UserLogin) (int, error)
 	GetMe(ctx context.Context, id int) (*models.UserGet, error)
 	Get(ctx context.Context, id int) (*models.UserGet, error)
 	Delete(ctx context.Context, id int) error
 	AddPhoto(ctx context.Context, adding models.AddPhoto) error
 	BookRoom(ctx context.Context, data models.UserBookRoom) error
+	RefreshToken(ctx context.Context, refreshToken string) (*models.JWTPair, error)
 }
 
 type UserChangeServ interface {

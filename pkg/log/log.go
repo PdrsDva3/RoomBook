@@ -31,12 +31,12 @@ func UnitFormatter() {
 func InitLogger() (*Logs, *os.File, *os.File) {
 	UnitFormatter()
 
-	loggerInfoFile, err := os.OpenFile("log/info.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0660)
+	loggerInfoFile, err := os.OpenFile("cmd/log/info.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0660)
 	if err != nil {
 		panic("Error opening info log file")
 	}
 
-	loggerErrorFile, err := os.OpenFile("log/error.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0660)
+	loggerErrorFile, err := os.OpenFile("cmd/log/error.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0660)
 	if err != nil {
 		panic("Error opening error log file")
 	}
