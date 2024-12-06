@@ -58,3 +58,7 @@ type AddPhoto struct {
 	ID    int    `json:"id"`
 	Photo string `json:"photo"`
 }
+
+type UserSession struct {
+	ID int `json:"id"`
+}

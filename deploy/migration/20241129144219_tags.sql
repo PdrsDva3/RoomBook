@@ -2,8 +2,14 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS tags(
     id   SERIAL PRIMARY KEY,
+    id_type int,
     type VARCHAR,
-    text VARCHAR
+    tag VARCHAR
+);
+
+Create TABLE if not exists tag_type(
+    id serial primary key,
+    type varchar
 );
 
 CREATE TABLE IF NOT EXISTS hotels_tags(

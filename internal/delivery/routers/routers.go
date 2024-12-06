@@ -12,4 +12,5 @@ func InitRouting(r *gin.Engine, db *sqlx.DB, logger *log.Logs, middlewareStruct 
 	_ = RegisterAdminRouter(r, db, logger)
 	_ = RegisterHotelRouter(r, db, logger)
 	_ = RegisterPhotoRouter(r, db, logger)
+	_ = RegisterTagRouter(r, db, logger)
 }

@@ -19,7 +19,6 @@ func RegisterAdminRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.Rout
 	adminRouter.POST("/create", adminHandler.Create)
 	adminRouter.POST("/login", adminHandler.Login)
 	adminRouter.GET("/:id", adminHandler.Get)
-	adminRouter.PUT("/change/pwd", adminHandler.ChangePWD)
 	adminRouter.DELETE("/delete/:id", adminHandler.Delete)
 
 	return adminRouter

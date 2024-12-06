@@ -72,32 +72,6 @@ func (h AdminHandler) Get(g *gin.Context) {
 	g.JSON(http.StatusOK, gin.H{"admin": admin})
 }
 
-// @Summary Change password
-// @Tags admin
-// @Accept  json
-// @Produce  json
-// @Param data body models.AdminChangePWD true "change password"
-// @Success 200 {object} int "Success changing"
-// @Failure 400 {object} map[string]string "Invalid id"
-// @Failure 500 {object} map[string]string "Internal server error"
-// @Router /admin/change/pwd [put]
-func (h AdminHandler) ChangePWD(g *gin.Context) {
-	var admin models.AdminChangePWD
-	if err := g.ShouldBindJSON(&admin); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	id, err := h.service.ChangePWD(ctx, admin)
-	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	g.JSON(http.StatusOK, gin.H{"id": id})
-}
-
 // @Summary Login admin
 // @Tags admin
 // @Accept  json

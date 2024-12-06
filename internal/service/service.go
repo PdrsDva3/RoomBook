@@ -51,3 +51,18 @@ type PhotoServ interface {
 	Get(ctx context.Context, hotelID int) (*models.PhotoWithIDHotel, error)
 	Delete(ctx context.Context, id []int) error
 }
+
+type TagServ interface {
+	AddHotel(ctx context.Context, hotel models.TagHotel) error
+	AddRoom(ctx context.Context, room models.TagRoom) error
+	DeleteHotel(ctx context.Context, hotel models.TagHotel) error
+	DeleteRoom(ctx context.Context, room models.TagRoom) error
+}
+
+type TagTypeServ interface {
+	CreateType(ctx context.Context, types models.TypeCreate) (int, error)
+	CreateTag(ctx context.Context, tag models.TagCreate) (*models.Tag, error)
+	Tags(ctx context.Context) ([]models.Tag, error)
+	Types(ctx context.Context) ([]models.TypeBase, error)
+	TagsType(ctx context.Context, idType int) (*models.TagsType, error)
+}
