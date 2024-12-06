@@ -26,7 +26,7 @@ func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 	}
 	for row.Next() {
 		var hotel models.Hotel
-		err := row.Scan(&hotel.ID, &hotel.Name, &hotel.Rating, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &linksJSON, &hotel.Lat, &hotel.Lon)
+		err = row.Scan(&hotel.ID, &hotel.Name, &hotel.Rating, &hotel.Stars, &hotel.Address, &hotel.Email, &hotel.Phone, &linksJSON, &hotel.Lat, &hotel.Lon)
 		if err != nil {
 			return nil, cerr.Err(cerr.InvalidEmail, err).Error()
 		}
@@ -54,6 +54,24 @@ func (r Repo) GetAll(ctx context.Context) ([]models.Hotel, error) {
 				return nil, cerr.Err(cerr.InvalidCount, err).Error()
 			}
 			hotel.Photo = append(hotel.Photo, photo)
+		}
+		rows, err = r.db.QueryContext(ctx, `SELECT id_tag  from hotels_tags WHERE id_hotel = $1;`, hotel.ID)
+		if err != nil {
+			return nil, cerr.Err(cerr.Rows, err).Error()
+		}
+		for rows.Next() {
+			var idTag int
+			err = rows.Scan(&idTag)
+			if err != nil {
+				return nil, cerr.Err(cerr.Scan, err).Error()
+			}
+			row1 := r.db.QueryRowContext(ctx, `SELECT id, id_type, type, tag from tags where id=$1;`, idTag)
+			var tag models.Tag
+			err = row1.Scan(&tag.IDTag, &tag.IDType, &tag.Type, &tag.Tag)
+			if err != nil {
+				return nil, cerr.Err(cerr.Scan, err).Error()
+			}
+			hotel.Tags = append(hotel.Tags, tag)
 		}
 		hotels = append(hotels, hotel)
 	}
@@ -273,7 +291,7 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 		var photo models.PhotoWithoutIDHotel
 		err = rows.Scan(&photo.ID, &photo.Name, &photo.Photo)
 		if err != nil {
-			return nil, cerr.Err(cerr.InvalidCount, err).Error()
+			return nil, cerr.Err(cerr.Scan, err).Error()
 		}
 		hotel.Photo = append(hotel.Photo, photo)
 	}
@@ -283,9 +301,27 @@ func (r Repo) Get(ctx context.Context, id int) (*models.Hotel, error) {
 		var photo models.PhotoWithoutIDHotel
 		err = row.Scan(&photo.ID, &photo, &photo.Name, &photo.Photo)
 		if err != nil {
-			return nil, cerr.Err(cerr.InvalidCount, err).Error()
+			return nil, cerr.Err(cerr.Scan, err).Error()
 		}
 		hotel.Photo = append(hotel.Photo, photo)
+	}
+	rows, err = r.db.QueryContext(ctx, `SELECT id_tag  from hotels_tags WHERE id_hotel = $1;`, id)
+	if err != nil {
+		return nil, cerr.Err(cerr.Rows, err).Error()
+	}
+	for rows.Next() {
+		var idTag int
+		err = rows.Scan(&idTag)
+		if err != nil {
+			return nil, cerr.Err(cerr.Scan, err).Error()
+		}
+		row = r.db.QueryRowContext(ctx, `SELECT id, id_type, type, tag from tags where id=$1;`, idTag)
+		var tag models.Tag
+		err = row.Scan(&tag.IDTag, &tag.IDType, &tag.Type, &tag.Tag)
+		if err != nil {
+			return nil, cerr.Err(cerr.Scan, err).Error()
+		}
+		hotel.Tags = append(hotel.Tags, tag)
 	}
 	return &hotel, nil
 }
@@ -330,6 +366,20 @@ func (r Repo) Delete(ctx context.Context, id int) error {
 		return cerr.Err(cerr.Rows, err).Error()
 	}
 	result, err = transaction.ExecContext(ctx, `DELETE FROM ratings WHERE id_hotel=$1;`, id)
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.ExecContext, err).Error()
+	}
+	count, err = result.RowsAffected()
+	if err != nil {
+		if rbErr := transaction.Rollback(); rbErr != nil {
+			return cerr.Err(cerr.Rollback, rbErr).Error()
+		}
+		return cerr.Err(cerr.Rows, err).Error()
+	}
+	result, err = transaction.ExecContext(ctx, `DELETE FROM hotels_tags WHERE id_hotel=$1;`, id)
 	if err != nil {
 		if rbErr := transaction.Rollback(); rbErr != nil {
 			return cerr.Err(cerr.Rollback, rbErr).Error()
