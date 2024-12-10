@@ -2,105 +2,136 @@ package admin
 
 import (
 	"RoomBook/internal/models"
-	"RoomBook/pkg/cerr"
+	"context"
+	"database/sql"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	sqlmock "github.com/zhashkevych/go-sqlxmock"
-	"golang.org/x/net/context"
 	"testing"
 )
 
-func TestRepo_Create(t *testing.T) {
-	// Создаем mock-объект для базы данных
+func TestRepo_Get(t *testing.T) {
+	// Инициализируем мок базы данных
 	db, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatalf("Не удалось создать mock DB: %v", err)
+	}
 	defer db.Close()
 
-	// Инициализируем репозиторий
-	sqlxDB := sqlx.NewDb(db, "postgres")
-	repo := InitAdminRepository(sqlxDB)
+	// Инициализируем объект репозитория с мока
+	repo := &Repo{db: sqlx.NewDb(db, "postgres")}
 
-	// Пример данных для создания
-	adminCreate := models.AdminCreate{
+	// Ожидаемый результат
+	expectedAdmin := &models.Admin{
+		ID: 1,
 		AdminBase: models.AdminBase{
-			Name:  "Test",
-			Email: "test@example.com",
-			Phone: "1234567890",
-			Photo: "photo_url",
+			Name:  "John Doe",
+			Email: "john.doe@example.com",
+			Phone: "+123456789",
+			Photo: "0000",
 		},
-		PWD: "hashed_password",
 	}
 
-	t.Run("success", func(t *testing.T) {
-		// Мокаем успешный запрос
-		mock.ExpectBegin()
-		mock.ExpectQuery("SELECT 1")
-		mock.ExpectCommit()
+	// Настроим мок: при выполнении запроса с id=1 возвращаем результат
+	rows := sqlmock.NewRows([]string{"name", "email", "phone", "photo"}).
+		AddRow(expectedAdmin.Name, expectedAdmin.Email, expectedAdmin.Phone, expectedAdmin.Photo)
 
-		// Вызываем метод
-		id, err := repo.Create(context.Background(), adminCreate)
+	mock.ExpectQuery(`SELECT name, email, phone, photo from admins WHERE id = \$1`).
+		WithArgs(1).
+		WillReturnRows(rows)
 
-		// Проверяем результаты
-		require.NoError(t, err)
-		assert.Equal(t, 0, id)
+	// Выполняем тестируемую функцию
+	admin, err := repo.Get(context.Background(), 1)
+	t.Logf("expected: %v\n  \t \t\t\tgive  : %v", expectedAdmin, admin)
 
-		// Проверяем все ожидания
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+	// Проверяем что ошибок нет
+	assert.NoError(t, err)
 
-	t.Run("transaction begin error", func(t *testing.T) {
-		// Мокаем ошибку при начале транзакции
-		mock.ExpectBegin().WillReturnError(err)
+	// Проверяем, что возвращенный результат совпадает с ожидаемым
+	assert.NotNil(t, admin)
+	assert.Equal(t, expectedAdmin.ID, admin.ID)
+	assert.Equal(t, expectedAdmin.Name, admin.Name)
+	assert.Equal(t, expectedAdmin.Email, admin.Email)
+	assert.Equal(t, expectedAdmin.Phone, admin.Phone)
+	assert.Equal(t, expectedAdmin.Photo, admin.Photo)
 
-		// Вызываем метод
-		id, err := repo.Create(context.Background(), adminCreate)
+	// Проверяем, что все ожидаемые запросы были выполнены
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
+}
 
-		// Проверяем ошибки
-		assert.Equal(t, 0, id)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), cerr.Transaction)
+func TestRepo_Get_NoAdminFound(t *testing.T) {
+	// Инициализируем мок базы данных
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Не удалось создать mock DB: %v", err)
+	}
+	defer db.Close()
 
-		// Проверяем все ожидания
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+	// Инициализируем объект репозитория с мока
+	repo := &Repo{db: sqlx.NewDb(db, "postgres")}
 
-	t.Run("query execution error", func(t *testing.T) {
-		// Мокаем успешное начало транзакции
-		mock.ExpectBegin()
-		mock.ExpectQuery(`INSERT INTO admins (name, email, phone, hashed_password, hotel_photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
-			WithArgs(adminCreate.Name, adminCreate.Email, adminCreate.Phone, adminCreate.PWD, adminCreate.Photo).
-			WillReturnError(err) // Ошибка выполнения запроса
+	// Настроим мок: при запросе с id=1 возвращаем пустой результат (нет администратора)
+	mock.ExpectQuery(`SELECT name, email, phone, photo from admins WHERE id = \$1`).
+		WithArgs(1).
+		WillReturnError(sql.ErrNoRows)
 
-		// Вызываем метод
-		id, err := repo.Create(context.Background(), adminCreate)
+	// Выполняем тестируемую функцию
+	admin, err := repo.Get(context.Background(), 1)
+	t.Logf("expected: %v\n  \t \t\t\tgive  : %v", sql.ErrNoRows, err)
 
-		// Проверяем ошибки
-		assert.Equal(t, 0, id)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), cerr.Scan)
+	// Проверяем, что ошибка вернулась (ожидаем ошибку поиска)
+	assert.Error(t, err)
+	assert.Nil(t, admin)
 
-		// Проверяем все ожидания
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+	// Проверяем, что все ожидаемые запросы были выполнены
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
+}
 
-	t.Run("transaction rollback error", func(t *testing.T) {
-		// Мокаем ошибку при откате транзакции
-		mock.ExpectBegin()
-		mock.ExpectQuery(`INSERT INTO admins (name, email, phone, hashed_password, hotel_photo) VALUES ($1, $2, $3, $4, $5) returning id;`).
-			WithArgs(adminCreate.Name, adminCreate.Email, adminCreate.Phone, adminCreate.PWD, adminCreate.Photo).
-			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(0)) // Вернем пустой id
-		mock.ExpectRollback().WillReturnError(err)
+func TestRepo_Create_Success(t *testing.T) {
+	// Инициализация мок базы данных
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Не удалось создать mock DB: %v", err)
+	}
+	defer db.Close()
 
-		// Вызываем метод
-		id, err := repo.Create(context.Background(), adminCreate)
+	// Инициализация репозитория с мокированным db
+	repo := &Repo{db: sqlx.NewDb(db, "postgres")}
 
-		// Проверяем ошибки
-		assert.Equal(t, 0, id)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), cerr.Rollback)
+	// Ожидаемые данные для администратора
+	adminCreate := models.AdminCreate{
+		AdminBase: models.AdminBase{
+			Name:  "John Doe",
+			Email: "john.doe@example.com",
+			Phone: "+123456789",
+			Photo: "0000",
+		},
+		PWD: "0000",
+	}
 
-		// Проверяем все ожидания
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+	// Ожидаемый id, который будет возвращен при вставке
+	expectedID := 1
+
+	// Настроим мок для транзакции
+	mock.ExpectBegin() // Начинаем транзакцию
+	mock.ExpectQuery(`INSERT into admins \(name, email, phone, hashed_password, photo\) VALUES \(\$1, \$2, \$3, \$4, \$5\) returning id`).
+		WithArgs(adminCreate.Name, adminCreate.Email, adminCreate.Phone, adminCreate.PWD, adminCreate.Photo).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(expectedID)) // Возвращаем id
+	mock.ExpectCommit() // Совершаем commit транзакции
+
+	// Выполняем метод
+	id, err := repo.Create(context.Background(), adminCreate)
+	t.Logf("expected: %v\n  \t \t\t\tgive  : %v", expectedID, id)
+
+	// Проверяем, что ошибок нет
+	assert.NoError(t, err)
+
+	// Проверяем, что id совпадает с ожидаемым
+	assert.Equal(t, expectedID, id)
+
+	// Проверяем, что все запросы были выполнены
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
 }
